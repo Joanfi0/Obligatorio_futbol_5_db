@@ -16,7 +16,7 @@ Base de proyecto para continuar el obligatorio de Bases de Datos I, segundo seme
 
 ## Arranque : Docker Desktop
 
-1. Extraer el ZIP y abrir una terminal dentro de la carpeta `avance-torneo-ucu`.
+1. Extraer el ZIP y abrir una terminal dentro de la carpeta `Obligatorio_futbol_5_db`.
 2. Iniciar Docker Desktop 
 3. Copiar `.env.example` como `.env`:
 
@@ -57,18 +57,17 @@ Editar un SQL no modifica una base ya inicializada: usar migraciones explícitas
 Requiere Python 3.12 y MySQL 8.4. Crear una instancia/base de pruebas vacía y ejecutar, en el cliente mysql como administrador, en este orden:
 
 ```sql
-SOURCE /ruta/absoluta/avance-torneo-ucu/sql/01_esquema.sql;
-SOURCE /ruta/absoluta/avance-torneo-ucu/sql/02_vistas.sql;
-SOURCE /ruta/absoluta/avance-torneo-ucu/sql/03_datos.sql;
-SOURCE /ruta/absoluta/avance-torneo-ucu/sql/04_permisos.sql;
+SOURCE /ruta/absoluta/Obligatorio_futbol_5_db/sql/01_esquema.sql;
+SOURCE /ruta/absoluta/Obligatorio_futbol_5_db/sql/02_vistas.sql;
+SOURCE /ruta/absoluta/Obligatorio_futbol_5_db/sql/03_datos.sql;
+SOURCE /ruta/absoluta/Obligatorio_futbol_5_db/sql/04_permisos.sql;
 ```
 
 Los scripts crean `torneo_ucu`; no eliminan una base existente y no deben repetirse sobre tablas ya creadas.
 
 ```powershell
 python -m venv .venv
-.venv\Scripts\python -m pip install -r requirements.txt
-Copy-Item .env.example .env
+.venv\Scripts\python Copy-Item .env.example .env
 ```
 
 Agregar a `.env` `DB_HOST=127.0.0.1` y `DB_PORT=3306` (o el puerto real). Si MySQL corre con el Compose, usar 3307.
@@ -104,3 +103,11 @@ run_local.py         Inicio local con .env
 ```
 
 Lo siguiente es implementar transacciones y procedimientos para planteles y programación de partidos; después planillas y sanciones automáticas. No conceder INSERT/UPDATE directos al planillero sobre tablas deportivas: usar operaciones controladas cuando sus validaciones estén implementadas.
+
+## Revisión del avance
+
+Ver docs/REVISION_AVANCE.md para el contraste con la consigna y los materiales.
+
+## Corrección de datos y consulta de equipos
+
+Se reemplazaron los 36 nombres de muestra por nombres y apellidos ficticios realistas. Se agregó consulta de equipos/planteles para administrador por edición y una columna de inscripciones en Jugadores. El ABM de equipos sigue pendiente. Para bases existentes ver docs/ACTUALIZAR_NOMBRES.md (ACTUALIZAR_NOMBRES.md desde esta carpeta). Pasaron las 9 pruebas y comprobaciones de rutas/consultas con SQLite; no se ejecutó integración MySQL.

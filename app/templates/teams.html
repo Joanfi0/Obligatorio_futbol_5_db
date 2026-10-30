@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+    <p><a href="{{url_for('index')}}">Volver a ediciones</a></p>
+    <h2>{{tournament.nombre}} — {{tournament.anio}}/{{tournament.semestre}}</h2>
+    {% for team in teams %}
+        <section class="panel">
+            <h2>{{team.nombre}}</h2>
+            <p>Facultad: {{team.facultad}}</p>
+            <p>Capitan: {{team.capitan_nombre or 'Sin asignar'}} {{team.capitan_apellido or ''}}</p>
+            <div class="table-scroll">
+                <table>
+                    <thead><tr><th>Camiseta</th><th>CI</th><th>Nombre</th><th>Apellido</th><th>Tipo</th><th>Capitan</th></tr></thead>
+                    <tbody>
+                        {% for player in rosters if player.id_equipo == team.id_equipo %}
+                            <tr>
+                                <td>{{player.numero_camiseta}}</td>
+                                <td>{{player.ci}}</td>
+                                <td>{{player.nombre}}</td>
+                                <td>{{player.apellido}}</td>
+                                <td>{{player.tipo}}</td>
+                                <td>{{'Si' if player.capitan else '—'}}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="6">Este equipo no tiene jugadores inscriptos.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    {% else %}
+        <p>No hay equipos inscriptos en esta edicion.</p>
+    {% endfor %}
+{% endblock %}

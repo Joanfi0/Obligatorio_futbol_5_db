@@ -15,7 +15,7 @@ El proyecto busca centralizar equipos, jugadores, canchas, calendario, resultado
 - Se agrega UNIQUE(ci_jugador,id_torneo) para asegurar un solo equipo por edición.
 - Las referencias compuestas del partido aseguran que los equipos pertenecen a su edición.
 - El capitán permite NULL durante la construcción del equipo para resolver la dependencia circular jugador/plantel/equipo. La validación final de pertenencia al plantel y obligatoriedad está pendiente.
-- Los identificadores SQL usan ASCII (`contrasena`, `direccion`); los valores de dominio mantienen los textos de la consigna, como `inscripción` y `acumulación de amarillas`.
+- Los identificadores SQL usan ASCII (`contrasena`, `direccion`); algunos valores de dominio también usan ASCII: `inscripcion` y `acumulacion de amarillas`.
 - Resultado y posiciones derivados, sin un marcador editable redundante. Un autogol suma para el rival y no entra en el ranking de goleadores.
 - Se devuelven los seis equipos en posiciones y fair play aunque no tengan eventos. Un 0–0 jugado cuenta como empate.
 - Los reportes de partidos/goles/tarjetas cuentan partidos jugados. Uso de canchas mide partidos efectivamente jugados, no reservas. Participación ausente comprueba cualquier planilla registrada en la edición.

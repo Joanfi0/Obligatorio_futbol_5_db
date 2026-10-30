@@ -16,7 +16,7 @@ CREATE TABLE jugador (
 CREATE TABLE torneo (
  id_torneo INT PRIMARY KEY AUTO_INCREMENT,nombre VARCHAR(120) NOT NULL,anio SMALLINT NOT NULL,
  semestre TINYINT NOT NULL,fecha_inicio DATE NOT NULL,fecha_fin DATE NOT NULL,
- estado ENUM('inscripción','en curso','finalizado') NOT NULL DEFAULT 'inscripción',
+ estado ENUM('inscripcion','en curso','finalizado') NOT NULL DEFAULT 'inscripcion',
  UNIQUE(anio,semestre),CHECK(semestre IN (1,2)),CHECK(fecha_fin>=fecha_inicio)
 );
 CREATE TABLE equipo (
@@ -40,7 +40,7 @@ CREATE TABLE complejo (
 );
 CREATE TABLE cancha (
  nombre_cancha VARCHAR(80) NOT NULL,id_complejo INT NOT NULL,
- superficie ENUM('sintético','parquet') NOT NULL,techada BOOLEAN NOT NULL,
+ superficie ENUM('sintetico','parquet') NOT NULL,techada BOOLEAN NOT NULL,
  PRIMARY KEY(nombre_cancha,id_complejo),FOREIGN KEY(id_complejo) REFERENCES complejo(id_complejo),CHECK(techada IN (0,1))
 );
 CREATE TABLE turno (
@@ -79,7 +79,7 @@ CREATE TABLE tarjeta (
 );
 CREATE TABLE sancion_jugador (
  id_sancion INT PRIMARY KEY AUTO_INCREMENT,ci_jugador VARCHAR(12) NOT NULL,id_torneo INT NOT NULL,
- motivo ENUM('roja','acumulación de amarillas','disciplinaria') NOT NULL,
+ motivo ENUM('roja','acumulacion de amarillas','disciplinaria') NOT NULL,
  numero_fecha_inicio INT NOT NULL,cantidad_fechas INT NOT NULL,
  FOREIGN KEY(ci_jugador,id_torneo) REFERENCES equipo_jugador_torneo(ci_jugador,id_torneo),
  CHECK(numero_fecha_inicio>0),CHECK(cantidad_fechas>0)

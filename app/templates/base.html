@@ -1,3 +1,47 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{title}} · UCU</title><link rel="stylesheet" href="{{url_for('static',filename='style.css')}}"></head>
-<body><header><a href="{{url_for('index')}}">INTERFACULTADES · FÚTBOL 5</a>{% if session.correo %}<span>{{session.correo}} · {{session.rol}}</span><form method="post" action="{{url_for('logout')}}"><input type="hidden" name="csrf" value="{{session.csrf}}"><button>Salir</button></form>{% endif %}</header>
-<main><p class="eyebrow">AVANCE ACADÉMICO · DATOS FICTICIOS</p><h1>{{title}}</h1>{% for category,msg in get_flashed_messages(with_categories=true) %}<p class="notice {{category}}" role="status">{{msg}}</p>{% endfor %}{% block content %}{% endblock %}</main></body></html>
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>
+            {{title}}
+            - UCU
+        </title>
+        <link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
+    </head>
+    <body>
+        <header>
+            <a href="{{url_for('index')}}">
+                INTERFACULTADES - FUTBOL 5
+            </a>
+            {% if session.correo %}
+                <span>
+                    {{session.correo}}
+                    -
+                    {{session.rol}}
+                </span>
+                <form method="post" action="{{url_for('logout')}}">
+                    <input type="hidden" name="csrf" value="{{session.csrf}}">
+                    <button>
+                        Salir
+                    </button>
+                </form>
+            {% endif %}
+        </header>
+        <main>
+            <p class="eyebrow">
+                AVANCE ACADEMICO - DATOS FICTICIOS
+            </p>
+            <h1>
+                {{title}}
+            </h1>
+            {% for category,msg in get_flashed_messages(with_categories=true) %}
+                <p class="notice {{category}}" role="status">
+                    {{msg}}
+                </p>
+            {% endfor %}
+            {% block content %}
+            {% endblock %}
+        </main>
+    </body>
+</html>
