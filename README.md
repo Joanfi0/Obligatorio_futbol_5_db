@@ -11,6 +11,63 @@
 - Perfiles MySQL diferentes; el planillero no puede escribir jugadores ni acceder al módulo de administración.
 - Docker Compose y documentación de instalación, decisiones, pendientes y pruebas.
 
+## Hasta ahora:
+
+
+- **Base de datos y restricciones:** `sql/01_esquema.sql`. Crea las 14 tablas, claves primarias y foráneas, restricciones `CHECK` y `UNIQUE`, y triggers básicos.
+
+- **Login y cierre de sesión:** `app/web.py`, funciones `login()`, `logout()` y `check_password()`. El formulario está en `app/templates/login.html`.
+
+- **Control de acceso por rol:** `app/web.py`, decorador `required()`. Verifica la sesión y restringe las operaciones de administrador.
+
+- **ABM de jugadores:** `app/web.py`, funciones `players()`, `edit_player()` y `delete_player()`. La pantalla está en `app/templates/players.html`. Permite crear, editar y eliminar jugadores; las referencias existentes impiden borrar jugadores con historial.
+
+- **Validaciones de jugadores:** `app/domain.py`, función `validate_player()`. Comprueba CI, nombre, apellido, correo, nacimiento, facultad y tipo. Se complementa con validaciones HTML en `players.html` y restricciones SQL en `sql/01_esquema.sql`.
+
+- **Consulta de equipos y planteles:** `app/web.py`, función `teams()`, y `app/templates/teams.html`. Muestra equipos por edición, facultad, capitán y jugadores. El acceso está en `app/templates/index.html`. Es una consulta para el administrador; todavía no permite modificar equipos ni planteles.
+
+- **Equipos por edición en la lista de jugadores:** consulta `memberships` dentro de `players()` en `app/web.py`. La columna se muestra en `app/templates/players.html` y obtiene las inscripciones de `equipo_jugador_torneo`.
+
+- **Consulta del fixture:** `app/web.py`, función `fixture()`. Muestra partidos, equipos, fecha, horario, cancha y estado mediante `app/templates/table.html`. La programación de partidos desde la web está pendiente.
+
+- **Cálculo de resultados y posiciones:** `sql/02_vistas.sql`. La vista `v_resultados` calcula los marcadores incluyendo autogoles; `v_actuaciones` obtiene la actuación de cada equipo por partido; y `v_posiciones` calcula estadísticas y puntos. El orden por puntos, diferencia de goles y goles a favor se aplica en el reporte de posiciones.
+
+- **Reportes:** `app/reports.json`. Contiene los títulos y consultas de los nueve reportes solicitados y tres adicionales. La función `report()` de `app/web.py` ejecuta las consultas y `app/templates/table.html` presenta los resultados.
+
+- **Datos de prueba:** `sql/03_datos.sql`. Incluye 6 equipos, 36 jugadores y 3 fechas disputadas, con goles, tarjetas y sanciones de ejemplo. Las sanciones de muestra se cargan explícitamente: todavía no se generan automáticamente.
+
+- **Corrección de nombres de ejemplo:** `migrations/01_nombres_demo.sql`. Actualiza nombres y apellidos originales en una base existente sin cambiar CI ni relaciones. Las instrucciones están en `docs/ACTUALIZAR_NOMBRES.md`. Modificar el script de datos iniciales no actualiza una base ya creada.
+
+- **Conexión y consultas parametrizadas:** `app/web.py`, función `query()`. Selecciona las credenciales según el rol y ejecuta SQL con parámetros mediante MySQL Connector.
+
+- **Permisos en MySQL:** `sql/04_permisos.sql`. Crea usuarios separados para autenticación, administración y planillero. En este avance, el administrador puede gestionar jugadores y el planillero consultar el fixture; los permisos de escritura de los módulos futuros siguen pendientes.
+
+- **Protección de formularios y sesiones:** `app/web.py`, funciones `csrf()` y `headers()`, y configuración de `app.config`. Los formularios incorporan tokens CSRF y las contraseñas se verifican mediante hash PBKDF2.
+
+- **Diseño de la web:** `app/static/style.css`. Contiene los estilos con formato legible. En `app/templates/`, `base.html` define la estructura compartida, `index.html` la página de inicio y `error.html` los mensajes de error.
+
+- **Ejecución con Docker:** `Dockerfile` y `compose.yaml`. Configuran los servicios de aplicación y MySQL.
+
+- **Ejecución local con Python:** `run_local.py`. Lee `.env` desde la carpeta del script e inicia la aplicación. Las dependencias están en `requirements.txt` y la configuración de ejemplo en `.env.example`.
+
+- **Pruebas básicas:** `tests/test_avance.py`. Incluye nueve pruebas de validaciones, coherencia de datos y cálculos. Se ejecutan desde la raíz del proyecto con `python -m unittest discover -s tests -v`.
+
+- **Documentación:** carpeta `docs/`. Los archivos `INFORME.md`, `MODELO.md`, `REQUISITOS.md`, `VALIDACION.md` y `REVISION_AVANCE.md` incluyen decisiones, modelo, alcance, pruebas y revisión. Algunos registros históricos deben actualizarse al completar nuevas funcionalidades.
+
+## Pendiente para completar el proyecto
+
+- ABM de equipos y planteles, con validaciones de integrantes, facultad, capitán y etapa de inscripción.
+- ABM de complejos deportivos y canchas.
+- Gestión de las ediciones y sus estados.
+- Programación y modificación de partidos, con control de enfrentamientos y superposiciones.
+- Registro de planillas, goles y tarjetas desde la web.
+- Cierre de partidos y control del plazo de corrección de 48 horas.
+- ABM de sanciones disciplinarias y generación automática de suspensiones.
+- Permisos, transacciones y validaciones para los nuevos módulos.
+- Pruebas integrales contra MySQL.
+- Actualización final del informe y las instrucciones de instalación.
+
+
 ## Arranque : Docker Desktop
 
 1. Extraer el ZIP y abrir una terminal dentro de la carpeta `Obligatorio_futbol_5_db`.
