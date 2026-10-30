@@ -103,6 +103,4 @@ Dockerfile           Imagen de la aplicación
 run_local.py         Inicio local con .env
 ```
 
-## Por dónde seguir
-
-Leer primero `docs/REQUISITOS.md`. El siguiente bloque prioritario es implementar transacciones y procedimientos para planteles y programación de partidos; después planillas y sanciones automáticas. No conceder INSERT/UPDATE directos al planillero sobre tablas deportivas: usar operaciones controladas cuando sus validaciones estén implementadas.
+Lo siguiente es implementar transacciones y procedimientos para planteles y programación de partidos; después planillas y sanciones automáticas. No conceder INSERT/UPDATE directos al planillero sobre tablas deportivas: usar operaciones controladas cuando sus validaciones estén implementadas.
