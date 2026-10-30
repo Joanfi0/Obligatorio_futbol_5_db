@@ -1,8 +1,5 @@
 # Torneo Interfacultades UCU — avance
 
-Base de proyecto para continuar el obligatorio de Bases de Datos I, segundo semestre de 2026.
-**Es un avance, no una entrega final completa.**  avance el 30/10, entrega final el 06/11 y defensa el 13/11.
-
 ## Qué incluye
 
 - Backend Python con Flask y MySQL Connector, SQL parametrizado directo, sin ORM.
@@ -34,8 +31,7 @@ docker compose logs app
 | Administrador | admin@demo.ucu | AdminDemo2026! |
 | Planillero | planilla@demo.ucu | PlanillaDemo2026! |
 
-Estas cuentas y las claves DB son públicas de ejemplo: NO usar en Internet. No subir `.env` a GitHub.
-La aplicación se publica solo en la interfaz local. No usa la cuenta root de MySQL.
+Estas cuentas y las claves DB son públicas de ejemplo
 
 ### Recorrido de demostración
 
@@ -50,7 +46,7 @@ Los partidos de muestra son de 2025 para que ya hayan transcurrido sus turnos. L
 ### Persistencia y reinicios
 
 Los scripts `sql/01` a `sql/04` se ejecutan automáticamente solo al inicializar un volumen vacío. `docker compose down` detiene los servicios y conserva el volumen. `docker compose up -d` los vuelve a iniciar.
-Editar un SQL no modifica una base ya inicializada: usar migraciones explícitas. No borrar el volumen si contiene trabajo que quieras conservar.
+Editar un SQL no modifica una base ya inicializada: usar migraciones explícitas. No borrar el volumen si contiene trabajo que se quiera conservar
 
 ## Alternativa: Python y MySQL locales
 
@@ -86,7 +82,7 @@ python -m compileall -q app run_local.py tests
 docker compose config --quiet
 ```
 
-Las pruebas portables usan solo la biblioteca estándar; comprueban validación, coherencia del fixture y lógica de reportes con un oráculo SQLite en memoria. **La aplicación y los scripts de instalación usan exclusivamente MySQL.** Este oráculo no valida el dialecto, los triggers, los grants ni la concurrencia de MySQL.
+
 
 Ver `docs/VALIDACION.md` para resultados reales y pruebas de integración pendientes. No se declara un arranque completo verificado hasta ejecutar el recorrido contra MySQL.
 
@@ -94,6 +90,7 @@ Ver `docs/VALIDACION.md` para resultados reales y pruebas de integración pendie
 
 ```text
 app/                 Rutas, validación, consultas, plantillas y estilos
+migrations/          Nombres demo
 sql/                 Esquema, vistas, datos y permisos
 tests/               Pruebas portables
 docs/                Matriz de requisitos, informe y validación
@@ -108,6 +105,4 @@ Lo siguiente es implementar transacciones y procedimientos para planteles y prog
 
 Ver docs/REVISION_AVANCE.md para el contraste con la consigna y los materiales.
 
-## Corrección de datos y consulta de equipos
 
-Se reemplazaron los 36 nombres de muestra por nombres y apellidos ficticios realistas. Se agregó consulta de equipos/planteles para administrador por edición y una columna de inscripciones en Jugadores. El ABM de equipos sigue pendiente. Para bases existentes ver docs/ACTUALIZAR_NOMBRES.md (ACTUALIZAR_NOMBRES.md desde esta carpeta). Pasaron las 9 pruebas y comprobaciones de rutas/consultas con SQLite; no se ejecutó integración MySQL.
