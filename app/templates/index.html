@@ -12,17 +12,32 @@
             Gestionar jugadores
         </a>
     </p>
+
     <p>
         <a class="button" href="{{ url_for('equipos.teams') }}">
             Gestionar Equipos
         </a>
     </p>
-        <p>
+
+    <p>
         <a class="button" href="{{ url_for('complejos.complexes') }}">
             Gestionar complejos deportivos
         </a>
     </p>
 
+    <p>
+        <a class="button" href="{{ url_for('sanciones.index') }}">
+            Gestionar sanciones
+        </a>
+    </p>
+{% endif %}
+
+{% if session.rol == 'planillero' %}
+    <p>
+        <a href="{{ url_for('planillas.index') }}">
+            Planillas
+        </a>
+    </p>
 {% endif %}
 
 <div class="grid">
@@ -63,9 +78,9 @@
 </div>
 
 <p class="notice">
-    En este avance están habilitados la consulta de fixture, los reportes
-    y los ABM de jugadores y equipos para administradores. La gestión de
-    planteles, partidos, planillas y sanciones está pendiente.
+    En este avance están habilitados la consulta del fixture, los reportes,
+    los ABM de jugadores, equipos y complejos, la gestión de planillas
+    y el registro de sanciones.
 </p>
 
 {% endblock %}

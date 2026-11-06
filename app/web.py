@@ -301,7 +301,11 @@ from .equipos import equipos_bp
 from .planteles import planteles_bp
 from .complejos import complejos_bp
 from .canchas import canchas_bp
+from .planillas import planillas_bp
+from .sanciones import sanciones_bp
 
+app.register_blueprint(sanciones_bp, url_prefix="/sanciones")
+app.register_blueprint(planillas_bp, url_prefix="/planillas")
 app.register_blueprint(canchas_bp)
 app.register_blueprint(complejos_bp)
 app.register_blueprint(planteles_bp)

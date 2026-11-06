@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<p>
+    <a href="{{ url_for('index') }}">
+        Volver a ediciones
+    </a>
+</p>
+
+<h1>Planillas de partidos</h1>
+
+{% if rows %}
+<div class="table-scroll">
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Partido</th>
+                <th>Día</th>
+                <th>Hora</th>
+                <th>Cancha</th>
+                <th>Estado</th>
+                <th>Participantes</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row.numero_fecha }}</td>
+                <td>{{ row.local }} - {{ row.visitante }}</td>
+                <td>{{ row.dia }}</td>
+                <td>{{ row.hora_inicio }}</td>
+                <td>
+                    {{ row.nombre_cancha }}
+                    (Complejo {{ row.id_complejo }})
+                </td>
+                <td>{{ row.estado }}</td>
+                <td>{{ row.participantes }}</td>
+                <td> <a href="{{ url_for(
+    'planillas.detalle',
+    id_partido=row.id_partido
+) }}">
+                    Abrir planilla
+                </a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No hay partidos para este torneo.</p>
+{% endif %}
+
+{% endblock %}

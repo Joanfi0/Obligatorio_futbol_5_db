@@ -110,3 +110,62 @@ def validate_court(data):
     elif superficie != 'parquet':
         raise ValueError('La superficie seleccionada no es válida.')
     return nombre, superficie, int(techada)
+
+def validate_ci(value):
+    ci = str(value).strip()
+
+    if not re.fullmatch(r'[0-9]{6,12}', ci):
+        raise ValueError('CI: entre 6 y 12 dígitos, sin separadores.')
+
+    return ci
+
+
+def validate_minute(value):
+    minute = str(value).strip()
+
+    if not re.fullmatch(r'[0-9]+', minute):
+        raise ValueError('El minuto debe ser un número entero.')
+
+    minute = int(minute)
+
+    if not 0 <= minute <= 60:
+        raise ValueError('El minuto debe estar entre 0 y 60.')
+
+    return minute
+
+
+def validate_card_color(value):
+    color = str(value).strip()
+
+    if color not in ('amarilla', 'roja'):
+        raise ValueError('El tipo de tarjeta no es válido.')
+
+    return color
+def validate_matchday(value):
+    value = str(value).strip()
+
+    if not re.fullmatch(r'[1-9][0-9]*', value):
+        raise ValueError('La fecha debe ser un número entero mayor que cero.')
+
+    value = int(value)
+
+    if value > 2147483647:
+        raise ValueError('La fecha supera el máximo permitido.')
+
+    return value
+
+
+def validate_suspension(value):
+    value = str(value).strip()
+
+    if not re.fullmatch(r'[1-9][0-9]*', value):
+        raise ValueError(
+            'La cantidad de fechas debe ser un número entero mayor que cero.'
+        )
+
+    value = int(value)
+
+    if value > 2147483647:
+        raise ValueError('La cantidad de fechas supera el máximo permitido.')
+
+    return value
