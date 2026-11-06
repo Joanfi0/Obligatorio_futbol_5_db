@@ -46,6 +46,59 @@ Se restringe la escritura deportiva hasta completar procedimientos validados. Da
 
 Limitaciones del entorno: Docker Desktop no tenía el motor Linux iniciado; la descarga de dependencias falló por resolución de red. Por eso no se registran pruebas MySQL ni HTTP como realizadas. Consultar VALIDACION.md para el resultado comprobado. No se inventan horas de trabajo ni actividades de los estudiantes.
 
+Segundo avance:
+ABM de equipos
+
+Se implementaron las operaciones para administrar los equipos participantes del torneo, permitiendo registrar nuevos equipos, consultar los existentes, modificar sus datos y eliminarlos.
+
+Se incorporaron validaciones para controlar los datos ingresados y respetar las restricciones definidas en el modelo de datos.
+
+ABM de planteles
+
+Se implementó la gestión de los integrantes de cada equipo, incluyendo:
+
+Incorporación de jugadores al plantel.
+
+Eliminación de jugadores.
+
+Asignación y modificación del capitán.
+
+Consulta de los integrantes del equipo.
+
+Se incorporaron las validaciones correspondientes a las reglas del torneo:
+
+Los integrantes deben pertenecer a la misma facultad.
+
+Un jugador no puede integrar más de un equipo en una misma edición.
+
+El plantel puede tener como máximo diez integrantes.
+
+Se permite un máximo de dos docentes o funcionarios.
+
+El capitán debe formar parte del plantel.
+
+Las modificaciones se permiten únicamente durante el período de inscripción.
+
+Para las operaciones que involucran varios cambios relacionados se implementaron transacciones y bloqueos de registros, buscando mantener la consistencia de los datos ante errores o accesos concurrentes.
+
+Se decidió permitir la construcción progresiva de los planteles, sin exigir el mínimo de cinco integrantes en cada incorporación. Este requisito debe controlarse al momento de habilitar la participación del equipo en el torneo.
+
+ABM de complejos deportivos
+
+Se implementaron las operaciones para registrar, consultar, modificar y eliminar complejos deportivos.
+
+Se agregaron validaciones para controlar los campos obligatorios, las longitudes máximas y los datos ingresados.
+
+También se contempló la relación entre complejos y canchas, manejando los errores de integridad referencial cuando se intenta eliminar un complejo que todavía tiene canchas asociadas.
+
+ABM de canchas
+
+Se implementaron las operaciones para registrar, consultar, modificar y eliminar canchas dentro de un complejo deportivo.
+
+Se tuvieron en cuenta las restricciones del modelo de datos, particularmente la clave primaria compuesta por el nombre de la cancha y el identificador del complejo.
+
+Se incorporaron validaciones para los campos de nombre, superficie y condición de cancha techada. Además, se contempló el manejo de errores por duplicación de claves para evitar que estas situaciones interrumpan la aplicación.
+
 ## Bibliografía y referencias para continuar
 
 - UCU. Obligatorio BD — Segundo Semestre 2026. Consigna proporcionada por el estudiante, páginas 1–4.
