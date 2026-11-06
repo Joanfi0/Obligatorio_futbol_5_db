@@ -56,3 +56,57 @@ def validate_team(data):
         values['id_facultad'],
         values['ci_capitan']
     )
+def validate_complex(data):
+    nombre = data.get('nombre', '').strip()
+    direccion = data.get('direccion', '').strip()
+    departamento = data.get('departamento', '').strip()
+
+    if not nombre or not direccion or not departamento:
+        raise ValueError('Todos los campos son obligatorios.')
+
+    if len(nombre) > 100:
+        raise ValueError('El nombre no puede superar los 100 caracteres.')
+
+    if len(direccion) > 200:
+        raise ValueError('La dirección no puede superar los 200 caracteres.')
+
+    if len(departamento) > 80:
+        raise ValueError('El departamento no puede superar los 80 caracteres.')
+
+    for campo, valor in (
+        ('nombre', nombre),
+        ('dirección', direccion),
+        ('departamento', departamento)
+    ):
+        if any(ord(c) < 32 or ord(c) == 127 for c in valor):
+            raise ValueError(f'El campo {campo} contiene caracteres no permitidos.')
+
+        if not any(c.isalnum() for c in valor):
+            raise ValueError(f'El campo {campo} debe contener letras o números.')
+
+    return nombre, direccion, departamento
+
+def validate_court(data):
+    nombre = data.get('nombre_cancha', '').strip()
+    superficie = data.get('superficie', '').strip()
+    techada = data.get('techada', '').strip()
+
+    if not nombre:
+        raise ValueError('El nombre de la cancha es obligatorio.')
+
+    if len(nombre) > 80:
+        raise ValueError('El nombre no puede superar los 80 caracteres.')
+
+    if any(ord(c) < 32 or ord(c) == 127 for c in nombre):
+        raise ValueError('El nombre contiene caracteres no permitidos.')
+
+    if not any(c.isalnum() for c in nombre):
+        raise ValueError('El nombre debe contener letras o números.')
+
+    if superficie not in ('sintetico', 'parquet'):
+        raise ValueError('La superficie seleccionada no es válida.')
+
+    if techada not in ('0', '1'):
+        raise ValueError('Debes indicar si la cancha es techada.')
+
+    return nombre, superficie, int(techada)

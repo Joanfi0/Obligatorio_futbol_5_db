@@ -159,3 +159,29 @@ summary {
     cursor: pointer;
     font-weight: 600;
 }
+.complex-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    white-space: nowrap;
+}
+
+.complex-actions a {
+    display: inline-block;
+    padding: 8px 10px;
+    text-decoration: underline;
+}
+
+.complex-actions form {
+    margin: 0;
+}
+.court-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    white-space: nowrap;
+}
+
+.court-actions form {
+    margin: 0;
+}

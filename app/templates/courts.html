@@ -1,0 +1,160 @@
+ 
+{% extends 'base.html' %}
+
+{% block content %}
+
+<p>
+    <a href="{{ url_for('complejos.complexes') }}">Volver a complejos</a>
+</p>
+
+<h1>{{ 'Editar cancha' if editing else 'Canchas de ' ~ complex.nombre }}</h1>
+
+{% if editing %}
+
+<form method="post" class="panel">
+    <input type="hidden" name="csrf" value="{{ session.csrf }}">
+    <input type="hidden" name="nombre_original" value="{{ nombre_original }}">
+
+    <div class="grid">
+        <label>
+            Nombre
+            <input
+                name="nombre_cancha"
+                maxlength="80"
+                required
+                value="{{ court.nombre_cancha }}"
+            >
+        </label>
+
+        <label>
+            Superficie
+            <select name="superficie" required>
+                <option value="sintetico" {% if court.superficie == 'sintetico' %}selected{% endif %}>
+                    Sintético
+                </option>
+                <option value="parquet" {% if court.superficie == 'parquet' %}selected{% endif %}>
+                    Parquet
+                </option>
+            </select>
+        </label>
+
+        <label>
+            ¿Es techada?
+            <select name="techada" required>
+                <option value="1" {% if court.techada == 1 or court.techada == '1' %}selected{% endif %}>
+                    Sí
+                </option>
+                <option value="0" {% if court.techada == 0 or court.techada == '0' %}selected{% endif %}>
+                    No
+                </option>
+            </select>
+        </label>
+    </div>
+
+    <p>
+        <button type="submit">Guardar cambios</button>
+        <a href="{{ url_for('canchas.courts', id_complejo=complex.id_complejo) }}">Cancelar</a>
+    </p>
+</form>
+
+{% else %}
+
+<form method="post" class="panel">
+    <input type="hidden" name="csrf" value="{{ session.csrf }}">
+
+    <div class="grid">
+        <label>
+            Nombre de la cancha
+            <input name="nombre_cancha" maxlength="80" required>
+        </label>
+
+        <label>
+            Superficie
+            <select name="superficie" required>
+                <option value="sintetico">Sintético</option>
+                <option value="parquet">Parquet</option>
+            </select>
+        </label>
+
+        <label>
+            ¿Es techada?
+            <select name="techada" required>
+                <option value="1">Sí</option>
+                <option value="0">No</option>
+            </select>
+        </label>
+    </div>
+
+    <p>
+        <button type="submit">Agregar cancha</button>
+    </p>
+</form>
+
+{% endif %}
+
+<h2>Canchas registradas</h2>
+
+{% if rows %}
+
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Superficie</th>
+            <th>Techada</th>
+            {% if not editing %}
+                <th>Acciones</th>
+            {% endif %}
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for c in rows %}
+        <tr>
+            <td>{{ c.nombre_cancha }}</td>
+
+            <td>
+                {{ 'Sintético' if c.superficie == 'sintetico' else 'Parquet' }}
+            </td>
+
+            <td>
+                {{ 'Sí' if c.techada == 1 or c.techada == '1' else 'No' }}
+            </td>
+
+            {% if not editing %}
+            <td>
+                <div class="court-actions">
+                    <a href="{{ url_for(
+                        'canchas.edit_court',
+                        id_complejo=complex.id_complejo,
+                        nombre_cancha=c.nombre_cancha
+                    ) }}">Editar</a>
+
+                    <form
+                        method="post"
+                        action="{{ url_for(
+                            'canchas.delete_court',
+                            id_complejo=complex.id_complejo
+                        ) }}"
+                        onsubmit="return confirm('¿Seguro que deseas eliminar esta cancha?');"
+                    >
+                        <input type="hidden" name="csrf" value="{{ session.csrf }}">
+                        <input type="hidden" name="nombre_cancha" value="{{ c.nombre_cancha }}">
+
+                        <button type="submit">Eliminar</button>
+                    </form>
+                </div>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% else %}
+
+<p>No hay canchas registradas en este complejo.</p>
+
+{% endif %}
+
+{% endblock %}

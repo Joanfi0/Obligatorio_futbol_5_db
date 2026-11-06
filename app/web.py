@@ -297,7 +297,11 @@ def forbidden(error):
 from .jugadores import jugadores_bp
 from .equipos import equipos_bp
 from .planteles import planteles_bp
+from .complejos import complejos_bp
+from .canchas import canchas_bp
 
+app.register_blueprint(canchas_bp)
+app.register_blueprint(complejos_bp)
 app.register_blueprint(planteles_bp)
 app.register_blueprint(jugadores_bp)
 app.register_blueprint(equipos_bp)
