@@ -75,8 +75,7 @@ def query(sql, params=(), role=None, write=False):
     finally:
         cn.close()
 
-
-def required(admin=False):
+def required(admin=False, planillero=False):
     def deco(fn):
         @wraps(fn)
         def wrapped(*a, **kw):
@@ -84,6 +83,9 @@ def required(admin=False):
                 return redirect(url_for("login"))
 
             if admin and session.get("rol") != "administrador":
+                abort(403)
+
+            if planillero and session.get("rol") != "planillero":
                 abort(403)
 
             return fn(*a, **kw)

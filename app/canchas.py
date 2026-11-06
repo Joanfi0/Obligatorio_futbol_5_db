@@ -46,8 +46,7 @@ def courts(id_complejo):
 
         except mysql.connector.Error as e:
             print('ERROR MYSQL AL CREAR CANCHA:', repr(e))
-            flash('Ocurrió un error al guardar la cancha.', 'error')
-
+            flash(f'No se pudo guardar la cancha: {e.msg}', 'error')
         return redirect(url_for('canchas.courts', id_complejo=id_complejo))
 
     return render_template(

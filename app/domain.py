@@ -102,11 +102,11 @@ def validate_court(data):
 
     if not any(c.isalnum() for c in nombre):
         raise ValueError('El nombre debe contener letras o números.')
-
-    if superficie not in ('sintetico', 'parquet'):
-        raise ValueError('La superficie seleccionada no es válida.')
-
     if techada not in ('0', '1'):
         raise ValueError('Debes indicar si la cancha es techada.')
 
+    if superficie == 'sintetico':
+        superficie = 'sintÃ©tico'
+    elif superficie != 'parquet':
+        raise ValueError('La superficie seleccionada no es válida.')
     return nombre, superficie, int(techada)

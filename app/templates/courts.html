@@ -1,4 +1,4 @@
- 
+
 {% extends 'base.html' %}
 
 {% block content %}
@@ -18,21 +18,18 @@
     <div class="grid">
         <label>
             Nombre
-            <input
-                name="nombre_cancha"
-                maxlength="80"
-                required
-                value="{{ court.nombre_cancha }}"
-            >
+            <input name="nombre_cancha" maxlength="80" required value="{{ court.nombre_cancha }}">
         </label>
 
         <label>
             Superficie
             <select name="superficie" required>
-                <option value="sintetico" {% if court.superficie == 'sintetico' %}selected{% endif %}>
+                <option value="sintetico"
+                    {% if court.superficie == 'sintÃ©tico' or court.superficie == 'sintetico' %}selected{% endif %}>
                     Sintético
                 </option>
-                <option value="parquet" {% if court.superficie == 'parquet' %}selected{% endif %}>
+                <option value="parquet"
+                    {% if court.superficie == 'parquet' %}selected{% endif %}>
                     Parquet
                 </option>
             </select>
@@ -41,10 +38,12 @@
         <label>
             ¿Es techada?
             <select name="techada" required>
-                <option value="1" {% if court.techada == 1 or court.techada == '1' %}selected{% endif %}>
+                <option value="1"
+                    {% if court.techada == 1 or court.techada == '1' %}selected{% endif %}>
                     Sí
                 </option>
-                <option value="0" {% if court.techada == 0 or court.techada == '0' %}selected{% endif %}>
+                <option value="0"
+                    {% if court.techada == 0 or court.techada == '0' %}selected{% endif %}>
                     No
                 </option>
             </select>
@@ -114,7 +113,7 @@
             <td>{{ c.nombre_cancha }}</td>
 
             <td>
-                {{ 'Sintético' if c.superficie == 'sintetico' else 'Parquet' }}
+                {{ 'Sintético' if c.superficie == 'sintÃ©tico' else 'Parquet' }}
             </td>
 
             <td>
@@ -130,14 +129,10 @@
                         nombre_cancha=c.nombre_cancha
                     ) }}">Editar</a>
 
-                    <form
-                        method="post"
-                        action="{{ url_for(
-                            'canchas.delete_court',
-                            id_complejo=complex.id_complejo
-                        ) }}"
-                        onsubmit="return confirm('¿Seguro que deseas eliminar esta cancha?');"
-                    >
+                    <form method="post" action="{{ url_for(
+                        'canchas.delete_court',
+                        id_complejo=complex.id_complejo
+                    ) }}">
                         <input type="hidden" name="csrf" value="{{ session.csrf }}">
                         <input type="hidden" name="nombre_cancha" value="{{ c.nombre_cancha }}">
 
