@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 {% block content %}
 
@@ -7,26 +6,25 @@
 </p>
 
 <form method="post"
-      action="{{ url_for('equipos.edit_team', id_equipo=edit_id) if editing else url_for('equipos.teams') }}"
-      class="panel">
+    action="{{ url_for('equipos.edit_team', id_equipo=edit_id) if editing else url_for('equipos.teams') }}"
+    class="panel">
 
     <input type="hidden" name="csrf" value="{{ session.csrf }}">
 
     <div class="grid">
         <label>
             Nombre
-            <input name="nombre" maxlength="100" required
-                   value="{{ team.get('nombre', '') }}">
+            <input name="nombre" maxlength="100" required value="{{ team.get('nombre', '') }}">
         </label>
 
         <label>
             Torneo
             <select name="id_torneo" required>
                 {% for tt in tournaments %}
-                    <option value="{{ tt.id_torneo }}"
-                        {% if team.get('id_torneo')|string == tt.id_torneo|string %}selected{% endif %}>
-                        {{ tt.nombre }}
-                    </option>
+                <option value="{{ tt.id_torneo }}" {% if team.get('id_torneo')|string==tt.id_torneo|string %}selected{%
+                    endif %}>
+                    {{ tt.nombre }}
+                </option>
                 {% endfor %}
             </select>
         </label>
@@ -35,19 +33,15 @@
             Facultad
             <select name="id_facultad" required>
                 {% for f in faculties %}
-                    <option value="{{ f.id_facultad }}"
-                        {% if team.get('id_facultad')|string == f.id_facultad|string %}selected{% endif %}>
-                        {{ f.nombre }}
-                    </option>
+                <option value="{{ f.id_facultad }}" {% if team.get('id_facultad')|string==f.id_facultad|string
+                    %}selected{% endif %}>
+                    {{ f.nombre }}
+                </option>
                 {% endfor %}
             </select>
         </label>
 
-        <label>
-            CI del capitán (opcional)
-            <input name="ci_capitan" maxlength="12"
-                   value="{{ team.get('ci_capitan') or '' }}">
-        </label>
+
     </div>
 
     <button type="submit">
@@ -55,50 +49,55 @@
     </button>
 
     {% if editing %}
-        <a href="{{ url_for('equipos.teams') }}">Cancelar</a>
+    <a href="{{ url_for('equipos.teams') }}">Cancelar</a>
     {% endif %}
 </form>
 
 {% if rows %}
-    <div class="table-scroll">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Torneo</th>
-                    <th>Facultad</th>
-                    <th>Capitán</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
+<div class="table-scroll">
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Torneo</th>
+                <th>Facultad</th>
+                <th>Capitán</th>
+                <th>Plantel</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
 
-            <tbody>
-                {% for tt in rows %}
-                    <tr>
-                        <td>{{ tt.nombre }}</td>
-                        <td>{{ tt.id_torneo }}</td>
-                        <td>{{ tt.id_facultad }}</td>
-                        <td>{{ tt.ci_capitan or 'Sin capitán' }}</td>
-                        <td>
-                            <a href="{{ url_for('equipos.edit_team', id_equipo=tt.id_equipo) }}">
-                                Editar
-                            </a>
+        <tbody>
+            {% for tt in rows %}
+            <tr>
+                <td>{{ tt.nombre }}</td>
+                <td>{{ tt.id_torneo }}</td>
+                <td>{{ tt.id_facultad }}</td>
+                <td>{{ tt.ci_capitan or 'Sin capitán' }}</td>
+                <td>
+                    <a href="{{ url_for('planteles.roster', id_equipo=tt.id_equipo) }}">
+                        Gestionar plantel
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ url_for('equipos.edit_team', id_equipo=tt.id_equipo) }}">
+                        Editar
+                    </a>
 
-                            <form method="post"
-                                  action="{{ url_for('equipos.delete_team', id_equipo=tt.id_equipo) }}"
-                                  style="display:inline">
-                                <input type="hidden" name="csrf" value="{{ session.csrf }}">
-                                <button type="submit"
-                                        onclick="return confirm('¿Estás seguro de eliminar este equipo?')">
-                                    Eliminar
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                    <form method="post" action="{{ url_for('equipos.delete_team', id_equipo=tt.id_equipo) }}"
+                        style="display:inline">
+                        <input type="hidden" name="csrf" value="{{ session.csrf }}">
+                        
+                        <button type="submit" onclick="return confirm('¿Estás seguro de eliminar este equipo?')">
+                            Eliminar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endif %}
 
 {% endblock %}

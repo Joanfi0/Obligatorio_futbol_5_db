@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<p>
+    <a href="{{ url_for('equipos.teams') }}">Volver a equipos</a>
+</p>
+
+<h2>{{ team.nombre }}</h2>
+
+<p>
+    Torneo: {{ team.torneo }} ({{ team.anio }}/{{ team.semestre }})
+</p>
+
+<p>
+    Estado del torneo: {{ team.estado }}
+</p>
+
+<h3>Integrantes: {{ total }}/10</h3>
+
+<p>
+    Docentes y funcionarios: {{ staff }}/2
+</p>
+
+{% if total < 5 %} <p>El plantel todavía no alcanza el mínimo de 5 integrantes.</p>
+    {% endif %}
+
+    {% if team.estado == 'inscripciÃ³n' %}
+    <form method="post" action="{{ url_for('planteles.add_member', id_equipo=team.id_equipo) }}" class="panel">
+
+        <input type="hidden" name="csrf" value="{{ session.csrf }}">
+
+        <h3>Agregar jugador</h3>
+
+        {% if available and total < 10 %} <div class="grid">
+            <label>
+                Jugador
+                <select name="ci" required>
+                    {% for p in available %}
+                    <option value="{{ p.ci }}">
+                        {{ p.apellido }}, {{ p.nombre }}
+                        — {{ p.ci }} ({{ p.tipo }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                Número de camiseta
+                <input type="number" name="numero_camiseta" min="1" max="99" required>
+            </label>
+            </div>
+
+            <button type="submit">Agregar al plantel</button>
+
+            {% elif total >= 10 %}
+            <p>El plantel alcanzó el máximo de 10 integrantes.</p>
+            {% else %}
+            <p>No hay jugadores disponibles de esta facultad para esta edición.</p>
+            {% endif %}
+    </form>
+
+    <form method="post" action="{{ url_for('planteles.set_captain', id_equipo=team.id_equipo) }}" class="panel">
+
+        <input type="hidden" name="csrf" value="{{ session.csrf }}">
+
+        <h3>Asignar capitán</h3>
+
+        {% if members %}
+        <label>
+            Capitán
+            <select name="ci_capitan">
+                <option value="">Sin capitán</option>
+
+                {% for p in members %}
+                <option value="{{ p.ci }}" {% if p.es_capitan %}selected{% endif %}>
+                    {{ p.nombre }} {{ p.apellido }} — {{ p.ci }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <button type="submit">Guardar capitán</button>
+        {% else %}
+        <p>Primero debes agregar integrantes al plantel.</p>
+        {% endif %}
+    </form>
+
+    {% else %}
+    <p>El plantel no puede modificarse porque el torneo no está en inscripción.</p>
+    {% endif %}
+
+    <h3>Listado de integrantes</h3>
+
+    {% if members %}
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>Camiseta</th>
+                    <th>CI</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Tipo</th>
+                    <th>Capitán</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for p in members %}
+                <tr>
+                    <td>{{ p.numero_camiseta }}</td>
+                    <td>{{ p.ci }}</td>
+                    <td>{{ p.nombre }}</td>
+                    <td>{{ p.apellido }}</td>
+                    <td>{{ p.tipo }}</td>
+                    <td>{{ 'Sí' if p.es_capitan else 'No' }}</td>
+                    <td>
+                        {% if team.estado == 'inscripciÃ³n' %}
+                        <form method="post" action="{{ url_for('planteles.remove_member', id_equipo=team.id_equipo) }}"
+                            onsubmit="return confirm('¿Seguro que deseas quitar a este jugador del plantel?');">
+
+                            <input type="hidden" name="csrf" value="{{ session.csrf }}">
+                            <input type="hidden" name="ci" value="{{ p.ci }}">
+
+                            <button type="submit">Quitar</button>
+                        </form>
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>Este equipo todavía no tiene integrantes.</p>
+    {% endif %}
+
+    {% endblock %}

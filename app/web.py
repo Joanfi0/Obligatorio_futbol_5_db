@@ -92,6 +92,47 @@ def required(admin=False):
 
     return deco
 
+def transaction(operation, role=None):
+    role = role or session.get("rol")
+    cred = {
+        "auth": ("torneo_auth", "DB_AUTH_PASSWORD"),
+        "administrador": ("torneo_admin", "DB_ADMIN_PASSWORD"),
+        "planillero": ("torneo_plan", "DB_PLAN_PASSWORD"),
+    }
+
+    if role not in cred:
+        abort(403)
+
+    user, key = cred[role]
+
+    cn = mysql.connector.connect(
+        host=os.getenv("DB_HOST", "127.0.0.1"),
+        port=int(os.getenv("DB_PORT", "3307")),
+        database=os.getenv("DB_NAME", "torneo_ucu"),
+        user=user,
+        password=os.environ[key],
+        connection_timeout=5,
+    )
+
+    cur = None
+
+    try:
+        cn.start_transaction()
+        cur = cn.cursor(dictionary=True)
+
+        result = operation(cur)
+
+        cn.commit()
+        return result
+
+    except Exception:
+        cn.rollback()
+        raise
+
+    finally:
+        if cur:
+            cur.close()
+        cn.close()
 
 @app.before_request
 def csrf():
@@ -228,10 +269,7 @@ def report(key):
 
 @app.errorhandler(mysql.connector.Error)
 def database_error(error):
-    app.logger.error(
-        "Error de conexión o consulta MySQL: %s",
-        getattr(error, "errno", None),
-    )
+    app.logger.exception("Error de conexión o consulta MySQL")
 
     return (
         render_template(
@@ -258,6 +296,8 @@ def forbidden(error):
 # Registro de Blueprints
 from .jugadores import jugadores_bp
 from .equipos import equipos_bp
+from .planteles import planteles_bp
 
+app.register_blueprint(planteles_bp)
 app.register_blueprint(jugadores_bp)
 app.register_blueprint(equipos_bp)

@@ -14,13 +14,15 @@ equipos_bp = Blueprint('equipos', __name__)
 def teams():
     if request.method == 'POST':
         try:
-            vals = validate_team(request.form)
-
-            query(
-                'INSERT INTO equipo (nombre,id_torneo,id_facultad,ci_capitan) VALUES (%s,%s,%s,%s)',
-                vals,
-                write=True
-            )
+            vals = validate_team({
+                **request.form,
+                'ci_capitan': ''
+                })
+            query('INSERT INTO equipo (nombre,id_torneo,id_facultad) '
+                  'VALUES (%s,%s,%s)',
+                  vals[:3],
+                  write=True
+                  )
 
             flash('Equipo creado.', 'ok')
             return redirect(url_for('equipos.teams'))
@@ -58,11 +60,28 @@ def edit_team(id_equipo):
 
     if request.method == 'POST':
         try:
-            vals = validate_team(request.form)
+            vals = validate_team({
+                            **request.form,
+                            'ci_capitan': ''
+                            })
+            if (
+                int(team['id_torneo']) != vals[1]
+                or int(team['id_facultad']) != vals[2]
+            ):
+                members = query(
+                    'SELECT COUNT(*) total FROM equipo_jugador_torneo '
+                    'WHERE id_equipo=%s AND id_torneo=%s',
+                    (id_equipo, team['id_torneo'])
+                )
+                if members[0]['total'] > 0:
+                    raise ValueError(
+                        'No se puede cambiar el torneo o la facultad de un equipo que tiene integrantes.'
+                    )
 
             query(
-                'UPDATE equipo SET nombre=%s, id_torneo=%s, id_facultad=%s, ci_capitan=%s WHERE id_equipo=%s',
-                vals + (id_equipo,),
+                'UPDATE equipo SET nombre=%s, id_torneo=%s, id_facultad=%s '
+                'WHERE id_equipo=%s',
+                vals[:3] + (id_equipo,),
                 write=True
             )
 

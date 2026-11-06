@@ -12,6 +12,8 @@ GRANT INSERT, UPDATE, DELETE
 ON torneo_ucu.jugador TO 'torneo_admin'@'%';
 GRANT INSERT, UPDATE, DELETE
 ON torneo_ucu.equipo TO 'torneo_admin'@'%';
+GRANT INSERT, UPDATE, DELETE
+ON torneo_ucu.equipo_jugador_torneo TO 'torneo_admin'@'%';
 
 -- Planillero: solo lectura del fixture en este avance.
 -- Escritura aun pendiente.
