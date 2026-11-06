@@ -33,3 +33,26 @@ def validate_player(data):
     if faculty < 1 or values["tipo"] not in TIPOS:
         raise ValueError("Facultad o tipo invalido.")
     return tuple(values[k] for k in fields)
+def validate_team(data):
+    fields = ('nombre', 'id_torneo', 'id_facultad', 'ci_capitan')
+    values = {k: str(data.get(k, '')).strip() for k in fields}
+
+    if not values['nombre'] or len(values['nombre']) > 100:
+        raise ValueError('Nombre de equipo: entre 1 y 100 caracteres.')
+
+    for k in ('id_torneo', 'id_facultad'):
+        if not re.fullmatch(r'[1-9][0-9]*', values[k]):
+            raise ValueError('Torneo y facultad deben ser identificadores válidos.')
+        values[k] = int(values[k])
+
+    if not values['ci_capitan']:
+        values['ci_capitan'] = None
+    elif not re.fullmatch(r'[0-9]{6,12}', values['ci_capitan']):
+        raise ValueError('CI del capitán: entre 6 y 12 dígitos, sin separadores.')
+
+    return (
+        values['nombre'],
+        values['id_torneo'],
+        values['id_facultad'],
+        values['ci_capitan']
+    )

@@ -15,7 +15,10 @@ services:
     ports:
       - "127.0.0.1:3307:3306"
   app:
+  
     build: .
+    volumes:
+      - .:/app
     environment:
       DB_HOST: db
       DB_PORT: 3306

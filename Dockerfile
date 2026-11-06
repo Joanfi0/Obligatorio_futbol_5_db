@@ -6,4 +6,4 @@ COPY app ./app
 RUN useradd --create-home torneo
 USER torneo
 EXPOSE 8000
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "--access-logfile", "-", "app.web:app"]
+CMD ["gunicorn", "--reload", "--bind", "0.0.0.0:8000", "--workers", "2", "--access-logfile", "-", "app.web:app"]
