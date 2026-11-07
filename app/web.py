@@ -177,6 +177,16 @@ def check_password(stored, pw):
     except (ValueError, IndexError):
         return False
 
+def hash_password(pw, iterations=600000):
+    salt = secrets.token_hex(16)
+    digest = hashlib.pbkdf2_hmac(
+        "sha256",
+        pw.encode("utf-8"),
+        salt.encode("utf-8"),
+        iterations,
+    ).hex()
+    return f"pbkdf2:sha256:{iterations}${salt}${digest}"
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -239,23 +249,6 @@ def torneo_id():
         abort(400)
 
 
-@app.get("/fixture")
-@required()
-def fixture():
-    rows = query(
-        "SELECT p.id_partido,p.numero_fecha,l.nombre local,v.nombre visitante,"
-        "p.dia,t.hora_inicio,p.nombre_cancha,p.id_complejo,p.estado "
-        "FROM partido p "
-        "JOIN equipo l ON l.id_equipo=p.id_equipo_local "
-        "JOIN equipo v ON v.id_equipo=p.id_equipo_visitante "
-        "JOIN turno t ON t.id_turno=p.id_turno "
-        "WHERE p.id_torneo=%s "
-        "ORDER BY p.numero_fecha,p.dia,t.hora_inicio",
-        (torneo_id(),),
-    )
-
-    return render_template("table.html", title="Fixture", rows=rows)
-
 
 @app.get("/reportes/<key>")
 @required(admin=True)
@@ -301,8 +294,8 @@ from .equipos import equipos_bp
 from .planteles import planteles_bp
 from .complejos import complejos_bp
 from .canchas import canchas_bp
-from .planillas import planillas_bp
-from .sanciones import sanciones_bp
+from .torneos import torneos_bp
+from .partidos import partidos_bp, fixture_view
 
 app.register_blueprint(sanciones_bp, url_prefix="/sanciones")
 app.register_blueprint(planillas_bp, url_prefix="/planillas")
@@ -311,3 +304,8 @@ app.register_blueprint(complejos_bp)
 app.register_blueprint(planteles_bp)
 app.register_blueprint(jugadores_bp)
 app.register_blueprint(equipos_bp)
+app.register_blueprint(torneos_bp)
+app.register_blueprint(partidos_bp)
+
+
+app.add_url_rule("/fixture", endpoint="fixture", view_func=fixture_view)

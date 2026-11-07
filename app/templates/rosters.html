@@ -24,7 +24,7 @@
 {% if total < 5 %} <p>El plantel todavía no alcanza el mínimo de 5 integrantes.</p>
     {% endif %}
 
-    {% if team.estado == 'inscripciÃ³n' %}
+    {% if team.estado == 'inscripcion' %}
     <form method="post" action="{{ url_for('planteles.add_member', id_equipo=team.id_equipo) }}" class="panel">
 
         <input type="hidden" name="csrf" value="{{ session.csrf }}">
@@ -116,7 +116,7 @@
                     <td>{{ p.tipo }}</td>
                     <td>{{ 'Sí' if p.es_capitan else 'No' }}</td>
                     <td>
-                        {% if team.estado == 'inscripciÃ³n' %}
+                        {% if team.estado == 'inscripcion' %}
                         <form method="post" action="{{ url_for('planteles.remove_member', id_equipo=team.id_equipo) }}"
                             onsubmit="return confirm('¿Seguro que deseas quitar a este jugador del plantel?');">
 

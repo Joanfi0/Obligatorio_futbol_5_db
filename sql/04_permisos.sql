@@ -14,15 +14,17 @@ GRANT INSERT, UPDATE, DELETE
 ON torneo_ucu.equipo TO 'torneo_admin'@'%';
 GRANT INSERT, UPDATE, DELETE
 ON torneo_ucu.equipo_jugador_torneo TO 'torneo_admin'@'%';
-GRANT SELECT ON torneo_ucu.complejo TO 'torneo_admin'@'%';
-GRANT INSERT, UPDATE, DELETE ON torneo_ucu.complejo TO 'torneo_admin'@'%';
-GRANT SELECT, INSERT ON torneo_ucu.sancion_jugador
-TO 'torneo_admin'@'%';
-GRANT SELECT ON torneo_ucu.cancha TO 'torneo_admin'@'%';
-GRANT INSERT, UPDATE, DELETE ON torneo_ucu.cancha TO 'torneo_admin'@'%';
 GRANT INSERT, UPDATE, DELETE
-ON torneo_ucu.sancion_jugador
-TO 'torneo_admin'@'%';
+ON torneo_ucu.complejo TO 'torneo_admin'@'%';
+GRANT INSERT, UPDATE, DELETE
+ON torneo_ucu.cancha TO 'torneo_admin'@'%';
+-- UPDATE is required for locking reads that join turno while managing matches.
+GRANT UPDATE ON torneo_ucu.turno TO 'torneo_admin'@'%';
+GRANT SELECT ON torneo_ucu.complejo TO 'torneo_admin'@'%';
+
+GRANT INSERT, UPDATE, DELETE ON torneo_ucu.torneo TO 'torneo_admin'@'%';
+GRANT INSERT, UPDATE, DELETE ON torneo_ucu.partido TO 'torneo_admin'@'%';
+
 -- Planillero: solo lectura del fixture en este avance.
 -- Escritura aun pendiente.
 GRANT SELECT ON torneo_ucu.torneo TO 'torneo_plan'@'%';

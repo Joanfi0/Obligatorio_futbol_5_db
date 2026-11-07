@@ -107,7 +107,7 @@ def add_member(id_equipo):
         if not team:
             raise ValueError('El equipo no existe.')
 
-        if team['estado'] != 'inscripciÃ³n':
+        if team['estado'] != 'inscripcion':
             raise ValueError('El plantel solo puede modificarse durante la inscripción.')
 
         cur.execute(
@@ -193,7 +193,7 @@ def set_captain(id_equipo):
         if not team:
             raise ValueError('El equipo no existe.')
 
-        if team['estado'] != 'inscripciÃ³n':
+        if team['estado'] != 'inscripcion':
             raise ValueError('El capitán solo puede modificarse durante la inscripción.')
 
         if ci:
@@ -241,7 +241,7 @@ def remove_member(id_equipo):
         if not team:
             raise ValueError('El equipo no existe.')
 
-        if team['estado'] != 'inscripciÃ³n':
+        if team['estado'] != 'inscripcion':
             raise ValueError('El plantel solo puede modificarse durante la inscripción.')
 
         cur.execute(

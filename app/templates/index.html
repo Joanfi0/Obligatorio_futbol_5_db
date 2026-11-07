@@ -1,64 +1,39 @@
-
 {% extends 'base.html' %}
 {% block content %}
-
 <p>
     Consulta las ediciones, el fixture y las métricas del torneo.
 </p>
-
 {% if session.rol == 'administrador' %}
     <p>
+        <a class="button" href="{{ url_for('torneos.tournaments') }}">
+            Gestionar ediciones (Torneos)
+        </a>
         <a class="button" href="{{ url_for('jugadores.players') }}">
             Gestionar jugadores
         </a>
-    </p>
-
-    <p>
         <a class="button" href="{{ url_for('equipos.teams') }}">
-            Gestionar Equipos
+            Gestionar equipos
         </a>
-    </p>
-
-    <p>
         <a class="button" href="{{ url_for('complejos.complexes') }}">
             Gestionar complejos deportivos
         </a>
     </p>
-
-    <p>
-        <a class="button" href="{{ url_for('sanciones.index') }}">
-            Gestionar sanciones
-        </a>
-    </p>
 {% endif %}
-
-{% if session.rol == 'planillero' %}
-    <p>
-        <a href="{{ url_for('planillas.index') }}">
-            Planillas
-        </a>
-    </p>
-{% endif %}
-
 <div class="grid">
     {% for t in tournaments %}
         <section class="panel">
             <p class="eyebrow">
-                {{ t.anio }} · SEMESTRE {{ t.semestre }}
+                {{ t.anio }} - SEMESTRE {{ t.semestre }}
             </p>
-
             <h2>{{ t.nombre }}</h2>
-
             <p>
-                {{ t.estado }} · {{ t.fecha_inicio }} a {{ t.fecha_fin }}
+                {{ t.estado }} - {{ t.fecha_inicio }} a {{ t.fecha_fin }}
             </p>
-
             <p>
                 <a href="{{ url_for('fixture', torneo=t.id_torneo) }}">
                     Ver fixture
                 </a>
             </p>
-
             {% if session.rol == 'administrador' %}
                 <details>
                     <summary>Reportes de esta edición</summary>
@@ -76,11 +51,9 @@
         </section>
     {% endfor %}
 </div>
-
 <p class="notice">
     En este avance están habilitados la consulta del fixture, los reportes,
     los ABM de jugadores, equipos y complejos, la gestión de planillas
     y el registro de sanciones.
 </p>
-
 {% endblock %}

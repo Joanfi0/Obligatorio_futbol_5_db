@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block content %}
+<p><a href="{{ url_for('fixture', torneo=match.id_torneo) }}">Volver al fixture</a></p>
+
+{% if not en_plazo_correccion %}
+<p class="notice error">
+    Este partido ya fue jugado y superó el plazo de corrección de 48 horas desde la finalización de su turno.
+</p>
+{% else %}
+<form method="post" class="panel">
+    <input type="hidden" name="csrf" value="{{ session.csrf }}">
+    <div class="grid">
+        <label>
+            N.º de Fecha
+            <input type="number" name="numero_fecha" min="1" max="50" required value="{{ match.numero_fecha }}">
+        </label>
+        <label>
+            Equipo Local
+            <select name="id_equipo_local" required>
+                {% for eq in teams %}
+                    <option value="{{ eq.id_equipo }}" {% if eq.id_equipo == match.id_equipo_local %}selected{% endif %}>
+                        {{ eq.nombre }} ({{ eq.jugadores }} jug.)
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            Equipo Visitante
+            <select name="id_equipo_visitante" required>
+                {% for eq in teams %}
+                    <option value="{{ eq.id_equipo }}" {% if eq.id_equipo == match.id_equipo_visitante %}selected{% endif %}>
+                        {{ eq.nombre }} ({{ eq.jugadores }} jug.)
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            Día
+            <input type="date" name="dia"
+                   min="{{ torneo.fecha_inicio }}"
+                   max="{{ torneo.fecha_fin }}"
+                   required value="{{ match.dia }}">
+        </label>
+        <label>
+            Turno
+            <select name="id_turno" required>
+                {% for sh in shifts %}
+                    <option value="{{ sh.id_turno }}" {% if sh.id_turno == match.id_turno %}selected{% endif %}>
+                        {{ sh.hora_inicio }} a {{ sh.hora_fin }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            Cancha y Complejo
+            <select name="cancha_complejo" required>
+                {% for c in courts %}
+                    <option value="{{ c.id_complejo }}|{{ c.nombre_cancha }}"
+                        {% if c.id_complejo == match.id_complejo and c.nombre_cancha == match.nombre_cancha %}selected{% endif %}>
+                        {{ c.complejo_nombre }} - {{ c.nombre_cancha }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            Estado
+            <select name="estado" required>
+                {% for st in states %}
+                    <option value="{{ st }}" {% if st == match.estado %}selected{% endif %}>{{ st }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+    <button type="submit">Guardar cambios / Reprogramar</button>
+    <a href="{{ url_for('fixture', torneo=match.id_torneo) }}">Cancelar</a>
+</form>
+{% endif %}
+{% endblock %}
