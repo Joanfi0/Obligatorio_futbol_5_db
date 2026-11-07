@@ -41,7 +41,7 @@
                 <td>{{ row.participantes }}</td>
                 <td> <a href="{{ url_for(
     'planillas.detalle',
-    id_partido=row.id_partido
+    id_partido=row.id_partido, torneo=request.args.get("torneo", 1)
 ) }}">
                     Abrir planilla
                 </a></td>

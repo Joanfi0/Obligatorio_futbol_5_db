@@ -156,6 +156,15 @@ def change_state(id_torneo):
         )
         pending = cur.fetchone()["pendientes"]
 
+        if nuevo_estado == "en curso":
+            cur.execute("SELECT e.nombre FROM equipo e LEFT JOIN equipo_jugador_torneo ej ON ej.id_equipo=e.id_equipo AND ej.id_torneo=e.id_torneo AND ej.ci_jugador=e.ci_capitan WHERE e.id_torneo=%s AND ej.ci_jugador IS NULL", (id_torneo,))
+            if cur.fetchall():
+                raise ValueError("Todos los equipos deben tener un capitán perteneciente al plantel.")
+        if nuevo_estado == "finalizado":
+            cur.execute("SELECT COUNT(*) total FROM equipo a JOIN equipo b ON a.id_torneo=b.id_torneo AND a.id_equipo<b.id_equipo WHERE a.id_torneo=%s AND NOT EXISTS (SELECT 1 FROM partido p WHERE p.id_torneo=a.id_torneo AND p.estado='jugado' AND LEAST(p.id_equipo_local,p.id_equipo_visitante)=a.id_equipo AND GREATEST(p.id_equipo_local,p.id_equipo_visitante)=b.id_equipo)", (id_torneo,))
+            if cur.fetchone()["total"]:
+                raise ValueError("Faltan enfrentamientos disputados para completar la liga de una rueda.")
+
         validate_tournament_transition(
             tor["estado"], nuevo_estado, team_counts, pending
         )

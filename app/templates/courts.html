@@ -113,7 +113,7 @@
             <td>{{ c.nombre_cancha }}</td>
 
             <td>
-                {{ 'Sintético' if c.superficie == 'sintÃ©tico' else 'Parquet' }}
+                {{ 'Sintético' if c.superficie in ('sintetico', 'sintético') else 'Parquet' }}
             </td>
 
             <td>

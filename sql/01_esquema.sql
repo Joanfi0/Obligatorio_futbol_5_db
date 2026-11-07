@@ -17,7 +17,8 @@ CREATE TABLE torneo (
  id_torneo INT PRIMARY KEY AUTO_INCREMENT,nombre VARCHAR(120) NOT NULL,anio SMALLINT NOT NULL,
  semestre TINYINT NOT NULL,fecha_inicio DATE NOT NULL,fecha_fin DATE NOT NULL,
  estado ENUM('inscripcion','en curso','finalizado') NOT NULL DEFAULT 'inscripcion',
- UNIQUE(anio,semestre),CHECK(semestre IN (1,2)),CHECK(fecha_fin>=fecha_inicio)
+ UNIQUE(anio,semestre),CHECK(semestre IN (1,2)),CHECK(fecha_fin>=fecha_inicio),
+ CONSTRAINT torneo_nombre CHECK(CHAR_LENGTH(TRIM(nombre))>0)
 );
 CREATE TABLE equipo (
  id_equipo INT PRIMARY KEY AUTO_INCREMENT,nombre VARCHAR(100) NOT NULL,id_torneo INT NOT NULL,
@@ -25,7 +26,8 @@ CREATE TABLE equipo (
  UNIQUE(id_equipo,id_torneo),UNIQUE(id_torneo,nombre),
  FOREIGN KEY(id_torneo) REFERENCES torneo(id_torneo),
  FOREIGN KEY(id_facultad) REFERENCES facultad(id_facultad),
- FOREIGN KEY(ci_capitan) REFERENCES jugador(ci)
+ FOREIGN KEY(ci_capitan) REFERENCES jugador(ci),
+ CONSTRAINT equipo_nombre CHECK(CHAR_LENGTH(TRIM(nombre))>0)
 );
 CREATE TABLE equipo_jugador_torneo (
  id_equipo INT NOT NULL,ci_jugador VARCHAR(12) NOT NULL,id_torneo INT NOT NULL,numero_camiseta TINYINT NOT NULL,
@@ -36,12 +38,14 @@ CREATE TABLE equipo_jugador_torneo (
 );
 CREATE TABLE complejo (
  id_complejo INT PRIMARY KEY AUTO_INCREMENT,nombre VARCHAR(100) NOT NULL,
- direccion VARCHAR(200) NOT NULL,departamento VARCHAR(80) NOT NULL
+ direccion VARCHAR(200) NOT NULL,departamento VARCHAR(80) NOT NULL,
+ CONSTRAINT complejo_textos CHECK(CHAR_LENGTH(TRIM(nombre))>0 AND CHAR_LENGTH(TRIM(direccion))>0 AND CHAR_LENGTH(TRIM(departamento))>0)
 );
 CREATE TABLE cancha (
  nombre_cancha VARCHAR(80) NOT NULL,id_complejo INT NOT NULL,
  superficie ENUM('sintetico','parquet') NOT NULL,techada BOOLEAN NOT NULL,
- PRIMARY KEY(nombre_cancha,id_complejo),FOREIGN KEY(id_complejo) REFERENCES complejo(id_complejo),CHECK(techada IN (0,1))
+ PRIMARY KEY(nombre_cancha,id_complejo),FOREIGN KEY(id_complejo) REFERENCES complejo(id_complejo),CHECK(techada IN (0,1)),
+ CONSTRAINT cancha_nombre CHECK(CHAR_LENGTH(TRIM(nombre_cancha))>0)
 );
 CREATE TABLE turno (
  id_turno INT PRIMARY KEY,hora_inicio TIME NOT NULL UNIQUE,hora_fin TIME NOT NULL,

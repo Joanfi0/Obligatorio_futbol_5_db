@@ -175,7 +175,6 @@ def validate_court(data):
     if any(ord(c) < 32 or ord(c) == 127 for c in nombre):
         raise ValueError("El nombre contiene caracteres no permitidos.")
     if not any(c.isalnum() for c in nombre):
-<<<<<<< Torneos_fixture_partidos
         raise ValueError("El nombre debe contener letras o números.")
     if superficie not in ("sintetico", "parquet"):
         raise ValueError("La superficie seleccionada no es válida.")
@@ -397,17 +396,6 @@ def validate_match_rules(
             )
 
     return True
-=======
-        raise ValueError('El nombre debe contener letras o números.')
-    if techada not in ('0', '1'):
-        raise ValueError('Debes indicar si la cancha es techada.')
-
-    if superficie == 'sintetico':
-        superficie = 'sintÃ©tico'
-    elif superficie != 'parquet':
-        raise ValueError('La superficie seleccionada no es válida.')
-    return nombre, superficie, int(techada)
-
 def validate_ci(value):
     ci = str(value).strip()
 
@@ -446,8 +434,8 @@ def validate_matchday(value):
 
     value = int(value)
 
-    if value > 2147483647:
-        raise ValueError('La fecha supera el máximo permitido.')
+    if value > 100:
+        raise ValueError('La fecha no puede superar 100.')
 
     return value
 
@@ -462,8 +450,7 @@ def validate_suspension(value):
 
     value = int(value)
 
-    if value > 2147483647:
-        raise ValueError('La cantidad de fechas supera el máximo permitido.')
+    if value > 100:
+        raise ValueError('La cantidad de fechas no puede superar 100.')
 
     return value
->>>>>>> main

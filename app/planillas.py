@@ -13,6 +13,8 @@ from flask import (
 
 from .domain import (
     validate_ci,
+    validate_correction_window,
+    is_within_correction_window,
     validate_minute,
     validate_card_color,
 )
@@ -28,7 +30,7 @@ def index():
     rows = query(
         "SELECT p.id_partido, p.numero_fecha, "
         "l.nombre AS local, v.nombre AS visitante, "
-        "p.dia, t.hora_inicio, p.nombre_cancha, "
+        "p.dia, t.hora_inicio, t.hora_fin, p.nombre_cancha, "
         "p.id_complejo, p.estado, "
         "(SELECT COUNT(*) "
         " FROM planilla_partido pp "
@@ -55,7 +57,7 @@ def detalle(id_partido):
         "SELECT p.id_partido, p.numero_fecha, "
         "p.id_torneo, p.id_equipo_local, p.id_equipo_visitante, "
         "l.nombre AS local, v.nombre AS visitante, "
-        "p.dia, t.hora_inicio, p.nombre_cancha, "
+        "p.dia, t.hora_inicio, t.hora_fin, p.nombre_cancha, "
         "p.id_complejo, p.estado "
         "FROM partido p "
         "JOIN equipo l ON l.id_equipo = p.id_equipo_local "
@@ -70,120 +72,50 @@ def detalle(id_partido):
 
     partido = partido[0]
 
+    editable = partido["estado"] != "cancelado" and is_within_correction_window(partido["dia"], partido["hora_fin"])
     if request.method == "POST":
-        accion = request.form.get("accion")
-        ci_jugador = request.form.get("ci_jugador", "")
-
         try:
-            if accion not in (
-                "agregar_participante",
-                "agregar_gol",
-                "agregar_tarjeta",
-            ):
-                raise ValueError("La acción solicitada no es válida.")
-
-            ci_jugador = validate_ci(ci_jugador)
-
-            if accion == "agregar_participante":
-
-                def agregar_participante(cur):
-                    cur.execute(
-                        "INSERT INTO planilla_partido "
-                        "(id_partido, ci_jugador, id_equipo) "
-                        "SELECT p.id_partido, ej.ci_jugador, ej.id_equipo "
-                        "FROM partido p "
-                        "JOIN equipo_jugador_torneo ej "
-                        "ON ej.id_torneo = p.id_torneo "
-                        "AND ej.id_equipo IN "
-                        "(p.id_equipo_local, p.id_equipo_visitante) "
-                        "WHERE p.id_partido = %s "
-                        "AND ej.ci_jugador = %s "
-                        "AND NOT EXISTS ("
-                        "    SELECT 1 "
-                        "    FROM sancion_jugador s "
-                        "    WHERE s.ci_jugador = ej.ci_jugador "
-                        "    AND s.id_torneo = p.id_torneo "
-                        "    AND p.numero_fecha >= s.numero_fecha_inicio "
-                        "    AND p.numero_fecha < "
-                        "        s.numero_fecha_inicio + s.cantidad_fechas"
-                        ")",
-                        (id_partido, ci_jugador),
-                    )
-
+            def guardar(cur):
+                cur.callproc("validar_planilla", (id_partido,))
+                cur.execute("SELECT p.*, t.hora_fin FROM partido p JOIN turno t USING(id_turno) WHERE id_partido=%s", (id_partido,))
+                actual = cur.fetchone()
+                if actual["estado"] == "cancelado":
+                    raise ValueError("No se puede cargar una planilla de un partido cancelado.")
+                validate_correction_window(actual["dia"], actual["hora_fin"])
+                accion = request.form.get("accion", "")
+                if accion == "agregar_participante":
+                    ci = validate_ci(request.form.get("ci_jugador", ""))
+                    cur.execute("INSERT INTO planilla_partido (id_partido,ci_jugador,id_equipo) SELECT %s,ci_jugador,id_equipo FROM equipo_jugador_torneo WHERE id_torneo=%s AND ci_jugador=%s AND id_equipo IN (%s,%s)", (id_partido,actual["id_torneo"],ci,actual["id_equipo_local"],actual["id_equipo_visitante"]))
                     if cur.rowcount != 1:
-                        raise ValueError(
-                            "El jugador no pertenece a ninguno de los equipos "
-                            "del partido o está suspendido."
-                        )
-
-                transaction(agregar_participante)
-
-                flash("Participante agregado correctamente.", "success")
-
-            elif accion == "agregar_gol":
-                minuto = validate_minute(
-                    request.form.get("minuto", "")
-                )
-                autogol = request.form.get("autogol") == "1"
-
-                def agregar_gol(cur):
-                    cur.execute(
-                        "INSERT INTO gol "
-                        "(id_partido, ci_jugador, minuto, autogol) "
-                        "SELECT id_partido, ci_jugador, %s, %s "
-                        "FROM planilla_partido "
-                        "WHERE id_partido = %s AND ci_jugador = %s",
-                        (minuto, autogol, id_partido, ci_jugador),
-                    )
-
-                    if cur.rowcount != 1:
-                        raise ValueError(
-                            "El jugador no está registrado en la planilla."
-                        )
-
-                transaction(agregar_gol)
-
-                flash("Gol registrado correctamente.", "success")
-
-            elif accion == "agregar_tarjeta":
-                minuto = validate_minute(
-                    request.form.get("minuto", "")
-                )
-                color = validate_card_color(
-                    request.form.get("color", "")
-                )
-
-                def agregar_tarjeta(cur):
-                    cur.execute(
-                        "INSERT INTO tarjeta "
-                        "(id_partido, ci_jugador, minuto, color) "
-                        "SELECT id_partido, ci_jugador, %s, %s "
-                        "FROM planilla_partido "
-                        "WHERE id_partido = %s AND ci_jugador = %s",
-                        (minuto, color, id_partido, ci_jugador),
-                    )
-
-                    if cur.rowcount != 1:
-                        raise ValueError(
-                            "El jugador no está registrado en la planilla."
-                        )
-
-                transaction(agregar_tarjeta)
-
-                flash("Tarjeta registrada correctamente.", "success")
-
+                        raise ValueError("El jugador no pertenece a los equipos del partido.")
+                elif accion == "quitar_participante":
+                    ci = validate_ci(request.form.get("ci_jugador", ""))
+                    cur.execute("DELETE FROM planilla_partido WHERE id_partido=%s AND ci_jugador=%s", (id_partido,ci))
+                elif accion in ("agregar_gol", "editar_gol", "eliminar_gol", "agregar_tarjeta", "editar_tarjeta", "eliminar_tarjeta"):
+                    tabla = "gol" if accion.endswith("gol") else "tarjeta"
+                    columna = "autogol" if tabla == "gol" else "color"
+                    identificador = request.form.get("id_evento", "")
+                    if not accion.startswith("agregar") and (not identificador.isdigit() or int(identificador) < 1):
+                        raise ValueError("Evento inválido.")
+                    if accion.startswith("eliminar"):
+                        cur.execute(f"DELETE FROM {tabla} WHERE id_{tabla}=%s AND id_partido=%s", (identificador,id_partido))
+                    else:
+                        ci = validate_ci(request.form.get("ci_jugador", ""))
+                        minuto = validate_minute(request.form.get("minuto", ""))
+                        valor = request.form.get("autogol") == "1" if tabla == "gol" else validate_card_color(request.form.get("color", ""))
+                        if accion.startswith("agregar"):
+                            cur.execute(f"INSERT INTO {tabla} (id_partido,ci_jugador,minuto,{columna}) VALUES (%s,%s,%s,%s)", (id_partido,ci,minuto,valor))
+                        else:
+                            cur.execute(f"UPDATE {tabla} SET ci_jugador=%s,minuto=%s,{columna}=%s WHERE id_{tabla}=%s AND id_partido=%s", (ci,minuto,valor,identificador,id_partido))
+                else:
+                    raise ValueError("Acción inválida.")
+            transaction(guardar)
+            flash("Planilla actualizada.", "ok")
         except ValueError as error:
             flash(str(error), "error")
-
-        except mysql.connector.IntegrityError:
-            flash(
-                "No se pudo registrar el dato por una restricción de la base de datos.",
-                "error",
-            )
-
-        return redirect(
-            url_for("planillas.detalle", id_partido=id_partido)
-        )
+        except mysql.connector.Error as error:
+            flash(getattr(error, "msg", "No se pudo actualizar la planilla."), "error")
+        return redirect(url_for("planillas.detalle", id_partido=id_partido, torneo=partido["id_torneo"]))
 
     participantes = query(
         "SELECT pp.ci_jugador, j.nombre, j.apellido, "
@@ -274,6 +206,7 @@ def detalle(id_partido):
     return render_template(
         "score_sheet_detail.html",
         partido=partido,
+        editable=editable,
         participantes=participantes,
         disponibles=disponibles,
         goles=goles,

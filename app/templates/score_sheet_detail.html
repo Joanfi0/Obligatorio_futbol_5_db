@@ -3,7 +3,7 @@
 {% block content %}
 
     <p>
-        <a href="{{ url_for('planillas.index') }}">
+        <a href="{{ url_for('planillas.index', torneo=partido.id_torneo) }}">
             Volver a planillas
         </a>
     </p>
@@ -62,6 +62,7 @@
         <p>No hay participantes registrados.</p>
     {% endif %}
 
+    {% if editable %}
     <h2>Agregar participante</h2>
 
     {% if disponibles %}
@@ -89,6 +90,7 @@
         <p>No hay jugadores disponibles para agregar.</p>
     {% endif %}
 
+    {% endif %}
     <h2>Goles</h2>
 
     {% if goles %}
@@ -125,7 +127,7 @@
         <p>No hay goles registrados.</p>
     {% endif %}
 
-    {% if participantes %}
+    {% if participantes and editable %}
         <h3>Registrar gol</h3>
 
         <form method="post">
@@ -204,7 +206,7 @@
         <p>No hay tarjetas registradas.</p>
     {% endif %}
 
-    {% if participantes %}
+    {% if participantes and editable %}
         <h3>Registrar tarjeta</h3>
 
         <form method="post">
@@ -248,4 +250,23 @@
         <p>Debe haber participantes registrados para ingresar tarjetas.</p>
     {% endif %}
 
+{% if not editable %}<p class="notice">La planilla está cerrada. Solo se puede modificar desde el fin del turno y durante las 48 horas siguientes.</p>{% endif %}
+{% if editable %}
+<h2>Corregir eventos</h2>
+{% for tabla, eventos in [('gol', goles), ('tarjeta', tarjetas)] %}
+{% for evento in eventos %}
+<form method="post" class="panel">
+<input type="hidden" name="csrf" value="{{ session.csrf }}">
+<input type="hidden" name="id_evento" value="{{ evento['id_' ~ tabla] }}">
+<label>Jugador<select name="ci_jugador" required>{% for j in participantes %}<option value="{{ j.ci_jugador }}" {% if j.ci_jugador == evento.ci_jugador %}selected{% endif %}>{{ j.nombre }} {{ j.apellido }}</option>{% endfor %}</select></label>
+<label>Minuto<input type="number" name="minuto" min="0" max="60" required value="{{ evento.minuto }}"></label>
+{% if tabla == 'gol' %}<label><input type="checkbox" name="autogol" value="1" {% if evento.autogol %}checked{% endif %}>Autogol</label>{% else %}<label>Tarjeta<select name="color"><option value="amarilla" {% if evento.color == 'amarilla' %}selected{% endif %}>Amarilla</option><option value="roja" {% if evento.color == 'roja' %}selected{% endif %}>Roja</option></select></label>{% endif %}
+<button name="accion" value="editar_{{ tabla }}">Guardar corrección</button>
+<button name="accion" value="eliminar_{{ tabla }}" formnovalidate>Eliminar {{ tabla }}</button>
+</form>
+{% endfor %}
+{% endfor %}
+<h2>Quitar participante</h2><p>Primero eliminá sus goles y tarjetas si fueron cargados por error.</p>
+{% for j in participantes %}<form method="post"><input type="hidden" name="csrf" value="{{ session.csrf }}"><input type="hidden" name="ci_jugador" value="{{ j.ci_jugador }}"><button name="accion" value="quitar_participante">Quitar a {{ j.nombre }} {{ j.apellido }}</button></form>{% endfor %}
+{% endif %}
 {% endblock %}

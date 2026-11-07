@@ -130,7 +130,11 @@ def index():
                     write=True,
                 )
 
-                if resultado:
+                if resultado or query(
+                    "SELECT id_sancion FROM sancion_jugador WHERE id_sancion=%s "
+                    "AND id_torneo=%s AND motivo='disciplinaria'",
+                    (id_sancion, id_torneo),
+                ):
                     flash("Sanción modificada correctamente.", "success")
                 else:
                     flash(
@@ -171,9 +175,9 @@ def index():
         except ValueError as error:
             flash(str(error), "error")
 
-        except mysql.connector.IntegrityError:
+        except mysql.connector.Error as error:
             flash(
-                "No se pudo realizar la operación por una restricción de la base de datos.",
+                getattr(error, "msg", "No se pudo realizar la operación."),
                 "error",
             )
 

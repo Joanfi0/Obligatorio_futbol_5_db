@@ -58,6 +58,8 @@ def query(sql, params=(), role=None, write=False):
     )
 
     try:
+        if write:
+            cn.start_transaction(isolation_level="READ COMMITTED")
         cur = cn.cursor(dictionary=True)
         cur.execute(sql, params)
 
@@ -85,7 +87,7 @@ def required(admin=False, planillero=False):
             if admin and session.get("rol") != "administrador":
                 abort(403)
 
-            if planillero and session.get("rol") != "planillero":
+            if planillero and session.get("rol") not in ("planillero", "administrador"):
                 abort(403)
 
             return fn(*a, **kw)
@@ -119,7 +121,7 @@ def transaction(operation, role=None):
     cur = None
 
     try:
-        cn.start_transaction()
+        cn.start_transaction(isolation_level="READ COMMITTED")
         cur = cn.cursor(dictionary=True)
 
         result = operation(cur)
@@ -289,6 +291,8 @@ def forbidden(error):
 
 
 # Registro de Blueprints
+from .planillas import planillas_bp
+from .sanciones import sanciones_bp
 from .jugadores import jugadores_bp
 from .equipos import equipos_bp
 from .planteles import planteles_bp
