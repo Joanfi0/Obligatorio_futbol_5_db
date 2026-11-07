@@ -75,8 +75,7 @@ def query(sql, params=(), role=None, write=False):
     finally:
         cn.close()
 
-
-def required(admin=False):
+def required(admin=False, planillero=False):
     def deco(fn):
         @wraps(fn)
         def wrapped(*a, **kw):
@@ -84,6 +83,9 @@ def required(admin=False):
                 return redirect(url_for("login"))
 
             if admin and session.get("rol") != "administrador":
+                abort(403)
+
+            if planillero and session.get("rol") != "planillero":
                 abort(403)
 
             return fn(*a, **kw)
@@ -295,6 +297,8 @@ from .canchas import canchas_bp
 from .torneos import torneos_bp
 from .partidos import partidos_bp, fixture_view
 
+app.register_blueprint(sanciones_bp, url_prefix="/sanciones")
+app.register_blueprint(planillas_bp, url_prefix="/planillas")
 app.register_blueprint(canchas_bp)
 app.register_blueprint(complejos_bp)
 app.register_blueprint(planteles_bp)

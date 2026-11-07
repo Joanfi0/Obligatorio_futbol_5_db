@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <p>
+        <a href="{{ url_for('planillas.index') }}">
+            Volver a planillas
+        </a>
+    </p>
+
+    <h1>Planilla del partido</h1>
+
+    <p>
+        <strong>Partido:</strong>
+        {{ partido.local }} - {{ partido.visitante }}
+    </p>
+
+    <p>
+        <strong>Fecha del torneo:</strong>
+        {{ partido.numero_fecha }}
+    </p>
+
+    <p>
+        <strong>Día:</strong>
+        {{ partido.dia }}
+    </p>
+
+    <p>
+        <strong>Estado:</strong>
+        {{ partido.estado }}
+    </p>
+
+    <h2>Participantes registrados</h2>
+
+    {% if participantes %}
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>CI</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Equipo</th>
+                        <th>Número de camiseta</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for jugador in participantes %}
+                        <tr>
+                            <td>{{ jugador.ci_jugador }}</td>
+                            <td>{{ jugador.nombre }}</td>
+                            <td>{{ jugador.apellido }}</td>
+                            <td>{{ jugador.equipo }}</td>
+                            <td>{{ jugador.numero_camiseta }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No hay participantes registrados.</p>
+    {% endif %}
+
+    <h2>Agregar participante</h2>
+
+    {% if disponibles %}
+        <form method="post">
+            <input type="hidden" name="csrf" value="{{ session.csrf }}">
+            <input type="hidden" name="accion" value="agregar_participante">
+
+            <label for="ci_participante">Jugador:</label>
+
+            <select id="ci_participante" name="ci_jugador" required>
+                <option value="">Seleccionar jugador</option>
+
+                {% for jugador in disponibles %}
+                    <option value="{{ jugador.ci_jugador }}">
+                        {{ jugador.nombre }} {{ jugador.apellido }}
+                        - {{ jugador.equipo }}
+                        - Camiseta {{ jugador.numero_camiseta }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Agregar participante</button>
+        </form>
+    {% else %}
+        <p>No hay jugadores disponibles para agregar.</p>
+    {% endif %}
+
+    <h2>Goles</h2>
+
+    {% if goles %}
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Jugador</th>
+                        <th>Minuto</th>
+                        <th>Tipo</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for gol in goles %}
+                        <tr>
+                            <td>
+                                {{ gol.nombre }} {{ gol.apellido }}
+                            </td>
+                            <td>{{ gol.minuto }}</td>
+                            <td>
+                                {% if gol.autogol %}
+                                    Autogol
+                                {% else %}
+                                    Gol
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No hay goles registrados.</p>
+    {% endif %}
+
+    {% if participantes %}
+        <h3>Registrar gol</h3>
+
+        <form method="post">
+            <input type="hidden" name="csrf" value="{{ session.csrf }}">
+            <input type="hidden" name="accion" value="agregar_gol">
+
+            <label for="ci_gol">Jugador:</label>
+
+            <select id="ci_gol" name="ci_jugador" required>
+                <option value="">Seleccionar jugador</option>
+
+                {% for jugador in participantes %}
+                    <option value="{{ jugador.ci_jugador }}">
+                        {{ jugador.nombre }} {{ jugador.apellido }}
+                        - {{ jugador.equipo }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="minuto_gol">Minuto:</label>
+            <input
+                type="number"
+                id="minuto_gol"
+                name="minuto"
+                min="0"
+                max="60"
+                required
+            >
+
+            <label>
+                <input type="checkbox" name="autogol" value="1">
+                Autogol
+            </label>
+
+            <button type="submit">Registrar gol</button>
+        </form>
+    {% else %}
+        <p>Debe haber participantes registrados para ingresar goles.</p>
+    {% endif %}
+    <h2>Resultado</h2>
+
+<p>
+    {{ partido.local }}
+    <strong>{{ resultado.goles_local }}</strong>
+    -
+    <strong>{{ resultado.goles_visitante }}</strong>
+    {{ partido.visitante }}
+</p>
+    <h2>Tarjetas</h2>
+
+    {% if tarjetas %}
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Jugador</th>
+                        <th>Minuto</th>
+                        <th>Color</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for tarjeta in tarjetas %}
+                        <tr>
+                            <td>
+                                {{ tarjeta.nombre }} {{ tarjeta.apellido }}
+                            </td>
+                            <td>{{ tarjeta.minuto }}</td>
+                            <td>{{ tarjeta.color }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No hay tarjetas registradas.</p>
+    {% endif %}
+
+    {% if participantes %}
+        <h3>Registrar tarjeta</h3>
+
+        <form method="post">
+            <input type="hidden" name="csrf" value="{{ session.csrf }}">
+            <input type="hidden" name="accion" value="agregar_tarjeta">
+
+            <label for="ci_tarjeta">Jugador:</label>
+
+            <select id="ci_tarjeta" name="ci_jugador" required>
+                <option value="">Seleccionar jugador</option>
+
+                {% for jugador in participantes %}
+                    <option value="{{ jugador.ci_jugador }}">
+                        {{ jugador.nombre }} {{ jugador.apellido }}
+                        - {{ jugador.equipo }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="minuto_tarjeta">Minuto:</label>
+            <input
+                type="number"
+                id="minuto_tarjeta"
+                name="minuto"
+                min="0"
+                max="60"
+                required
+            >
+
+            <label for="color">Color:</label>
+
+            <select id="color" name="color" required>
+                <option value="">Seleccionar tarjeta</option>
+                <option value="amarilla">Amarilla</option>
+                <option value="roja">Roja</option>
+            </select>
+
+            <button type="submit">Registrar tarjeta</button>
+        </form>
+    {% else %}
+        <p>Debe haber participantes registrados para ingresar tarjetas.</p>
+    {% endif %}
+
+{% endblock %}

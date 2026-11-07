@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Gestión de sanciones</h1>
+
+<form method="get" class="panel">
+    <label for="torneo">Torneo</label>
+
+    <select id="torneo" name="torneo">
+        {% for t in torneos %}
+        <option value="{{ t.id_torneo }}"
+            {% if t.id_torneo == torneo.id_torneo %}selected{% endif %}>
+            {{ t.nombre }} - {{ t.anio }} / Semestre {{ t.semestre }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Ver torneo</button>
+</form>
+
+<h2>Registrar sanción disciplinaria</h2>
+
+<form method="post" class="panel">
+    <input type="hidden" name="csrf" value="{{ session.csrf }}">
+    <input type="hidden" name="id_torneo" value="{{ torneo.id_torneo }}">
+    <input type="hidden" name="accion" value="registrar">
+
+    <label for="ci_jugador">Jugador</label>
+    <select id="ci_jugador" name="ci_jugador" required>
+        <option value="">Seleccionar jugador</option>
+        {% for jugador in jugadores %}
+        <option value="{{ jugador.ci }}">
+            {{ jugador.apellido }}, {{ jugador.nombre }}
+            ({{ jugador.ci }}) - {{ jugador.equipo }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="numero_fecha_inicio">Fecha desde la que se aplica</label>
+    <input
+        type="number"
+        id="numero_fecha_inicio"
+        name="numero_fecha_inicio"
+        min="1"
+        max="100"
+        step="1"
+        placeholder="Ej. 3"
+        required
+    >
+
+    <label for="cantidad_fechas">Cantidad de fechas de suspensión</label>
+    <input
+        type="number"
+        id="cantidad_fechas"
+        name="cantidad_fechas"
+        min="1"
+        max="100"
+        step="1"
+        placeholder="Ej. 2"
+        required
+    >
+
+    <button type="submit">Registrar sanción</button>
+</form>
+
+<h2>Sanciones del torneo</h2>
+
+{% if sanciones %}
+<div class="table-scroll">
+    <table>
+        <thead>
+            <tr>
+                <th>Jugador</th>
+                <th>Equipo</th>
+                <th>Motivo</th>
+                <th>Fecha de inicio</th>
+                <th>Cantidad de fechas</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for sancion in sanciones %}
+            <tr>
+                <td>
+                    {{ sancion.apellido }}, {{ sancion.nombre }}
+                    ({{ sancion.ci_jugador }})
+                </td>
+
+                <td>{{ sancion.equipo }}</td>
+
+                <td>
+                    {% if sancion.motivo == 'roja' %}
+                        Tarjeta roja
+                    {% elif sancion.motivo == 'acumulacion de amarillas' %}
+                        Acumulación de amarillas
+                    {% else %}
+                        Disciplinaria
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if sancion.motivo == 'disciplinaria' %}
+                    <form method="post" class="panel">
+                        <input type="hidden" name="csrf" value="{{ session.csrf }}">
+                        <input type="hidden" name="id_torneo" value="{{ torneo.id_torneo }}">
+                        <input type="hidden" name="accion" value="modificar">
+                        <input type="hidden" name="id_sancion" value="{{ sancion.id_sancion }}">
+
+                        <label>Fecha de inicio</label>
+                        <input
+                            type="number"
+                            name="numero_fecha_inicio"
+                            min="1"
+                            max="100"
+                            step="1"
+                            value="{{ sancion.numero_fecha_inicio }}"
+                            required
+                        >
+
+                        <label>Cantidad de fechas</label>
+                        <input
+                            type="number"
+                            name="cantidad_fechas"
+                            min="1"
+                            max="100"
+                            step="1"
+                            value="{{ sancion.cantidad_fechas }}"
+                            required
+                        >
+
+                        <button type="submit">Guardar cambios</button>
+                    </form>
+                    {% else %}
+                        {{ sancion.numero_fecha_inicio }}
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if sancion.motivo == 'disciplinaria' %}
+                        {{ sancion.cantidad_fechas }}
+                    {% else %}
+                        {{ sancion.cantidad_fechas }}
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if sancion.motivo == 'disciplinaria' %}
+                    <form method="post" class="panel">
+                        <input type="hidden" name="csrf" value="{{ session.csrf }}">
+                        <input type="hidden" name="id_torneo" value="{{ torneo.id_torneo }}">
+                        <input type="hidden" name="accion" value="eliminar">
+                        <input type="hidden" name="id_sancion" value="{{ sancion.id_sancion }}">
+
+                        <button type="submit">Eliminar</button>
+                    </form>
+                    {% else %}
+                        Automática
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No hay sanciones registradas para este torneo.</p>
+{% endif %}
+
+{% endblock %}

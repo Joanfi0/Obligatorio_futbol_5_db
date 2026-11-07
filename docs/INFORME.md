@@ -99,6 +99,34 @@ Se tuvieron en cuenta las restricciones del modelo de datos, particularmente la 
 
 Se incorporaron validaciones para los campos de nombre, superficie y condición de cancha techada. Además, se contempló el manejo de errores por duplicación de claves para evitar que estas situaciones interrumpan la aplicación.
 
+Gestión de planillas de partidos
+Se implementó la gestión de planillas de partidos, permitiendo registrar los jugadores participantes de cada equipo y los eventos correspondientes al encuentro.
+
+Se incorporaron las operaciones para:
+  Registrar jugadores participantes.
+  Registrar goles, indicando jugador y minuto.
+  Registrar tarjetas amarillas y rojas, indicando jugador y minuto.
+  Consultar los participantes y eventos registrados en cada partido.
+Se incorporaron validaciones para asegurar que los jugadores registrados pertenezcan al plantel de alguno de los dos equipos participantes y que no estén suspendidos en la fecha correspondiente.
+
+También se controla que solamente los jugadores incluidos en la planilla puedan convertir goles o recibir tarjetas.
+
+El resultado del partido se calcula dinámicamente a partir de los goles registrados, contemplando también los autogoles. No se mantiene un resultado editable independiente de los eventos.
+
+Se decidió que el registro de tarjetas forme parte de la gestión de planillas, sin implementar un ABM independiente para ellas.
+ABM de sanciones
+Se implementó la gestión de sanciones de jugadores, incluyendo:
+  Alta de sanciones disciplinarias.
+  Consulta de sanciones correspondientes al torneo seleccionado.
+  Modificación de sanciones disciplinarias.
+  Eliminación de sanciones disciplinarias.
+Se incorporaron validaciones para comprobar que el jugador pertenezca a un plantel del torneo seleccionado y que la fecha de inicio y la cantidad de fechas de suspensión sean valores enteros positivos, con un máximo de 100.
+
+Se decidió diferenciar las sanciones disciplinarias de las sanciones automáticas generadas por tarjetas:
+  Las sanciones disciplinarias pueden registrarse, modificarse y eliminarse desde el ABM.
+  Las sanciones por tarjeta roja y acumulación de amarillas se generan automáticamente mediante un trigger de MySQL.
+  Las sanciones automáticas se muestran en la consulta, pero no pueden modificarse ni eliminarse desde el ABM.
+Se incorporaron permisos de base de datos para permitir al administrador gestionar las sanciones disciplinarias.
 
 **Gestión de ediciones y partidos**  
 Se implementó la gestión de ediciones, la consulta del fixture y las operaciones administrativas para programar, modificar, reprogramar, cambiar el estado y eliminar partidos. Se agregaron validaciones de estados y reglas del torneo, junto con pruebas del dominio.  

@@ -31,3 +31,23 @@ GRANT SELECT ON torneo_ucu.torneo TO 'torneo_plan'@'%';
 GRANT SELECT ON torneo_ucu.partido TO 'torneo_plan'@'%';
 GRANT SELECT ON torneo_ucu.equipo TO 'torneo_plan'@'%';
 GRANT SELECT ON torneo_ucu.turno TO 'torneo_plan'@'%';
+GRANT SELECT ON torneo_ucu.planilla_partido
+TO 'torneo_plan'@'%';
+GRANT SELECT ON torneo_ucu.jugador
+TO 'torneo_plan'@'%';
+
+GRANT SELECT ON torneo_ucu.equipo_jugador_torneo
+TO 'torneo_plan'@'%';
+
+GRANT SELECT ON torneo_ucu.sancion_jugador
+TO 'torneo_plan'@'%';
+
+GRANT INSERT ON torneo_ucu.planilla_partido
+TO 'torneo_plan'@'%';
+GRANT SELECT, INSERT ON torneo_ucu.gol
+TO 'torneo_plan'@'%';
+
+GRANT SELECT, INSERT ON torneo_ucu.tarjeta
+TO 'torneo_plan'@'%';
+GRANT INSERT ON torneo_ucu.sancion_jugador
+TO 'torneo_admin'@'%';
