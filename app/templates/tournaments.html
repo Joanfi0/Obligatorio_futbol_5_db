@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block content %}
+<p><a href="{{ url_for('index') }}">Volver a inicio</a></p>
+
+<form method="post"
+      action="{{ url_for('torneos.edit_tournament', id_torneo=edit_id) if editing else url_for('torneos.tournaments') }}"
+      class="panel">
+    <input type="hidden" name="csrf" value="{{ session.csrf }}">
+    <h2>{{ 'Modificar edición' if editing else 'Nueva edición del torneo' }}</h2>
+    <div class="grid">
+        <label>
+            Nombre
+            <input name="nombre" maxlength="120" required value="{{ tournament.get('nombre', '') }}">
+        </label>
+        <label>
+            Año
+            <input type="number" name="anio" min="2000" max="2100" required value="{{ tournament.get('anio', '2026') }}">
+        </label>
+        <label>
+            Semestre
+            <select name="semestre" required>
+                <option value="1" {% if tournament.get('semestre')|string == '1' %}selected{% endif %}>1</option>
+                <option value="2" {% if tournament.get('semestre')|string == '2' %}selected{% endif %}>2</option>
+            </select>
+        </label>
+        <label>
+            Fecha de inicio
+            <input type="date" name="fecha_inicio" required value="{{ tournament.get('fecha_inicio', '') }}">
+        </label>
+        <label>
+            Fecha de fin
+            <input type="date" name="fecha_fin" required value="{{ tournament.get('fecha_fin', '') }}">
+        </label>
+    </div>
+    <button type="submit">{{ 'Guardar cambios' if editing else 'Crear edición' }}</button>
+    {% if editing %}
+        <a href="{{ url_for('torneos.tournaments') }}">Cancelar</a>
+    {% endif %}
+</form>
+
+<h2>Ediciones registradas</h2>
+<div class="table-scroll">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Año/Sem.</th>
+                <th>Vigencia</th>
+                <th>Equipos</th>
+                <th>Partidos</th>
+                <th>Estado actual</th>
+                <th>Transición de estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in rows %}
+            <tr>
+                <td>{{ t.id_torneo }}</td>
+                <td>{{ t.nombre }}</td>
+                <td>{{ t.anio }} / {{ t.semestre }}</td>
+                <td>{{ t.fecha_inicio }} a {{ t.fecha_fin }}</td>
+                <td>{{ t.total_equipos }}</td>
+                <td>{{ t.total_partidos }}</td>
+                <td><strong>{{ t.estado }}</strong></td>
+                <td>
+                    {% if t.estado == 'inscripcion' %}
+                        <form method="post" action="{{ url_for('torneos.change_state', id_torneo=t.id_torneo) }}">
+                            <input type="hidden" name="csrf" value="{{ session.csrf }}">
+                            <input type="hidden" name="estado" value="en curso">
+                            <button type="submit">Iniciar torneo (En curso)</button>
+                        </form>
+                    {% elif t.estado == 'en curso' %}
+                        <form method="post" action="{{ url_for('torneos.change_state', id_torneo=t.id_torneo) }}"
+                              onsubmit="return confirm('¿Finalizar edición? No se permitirán más cambios.');">
+                            <input type="hidden" name="csrf" value="{{ session.csrf }}">
+                            <input type="hidden" name="estado" value="finalizado">
+                            <button type="submit">Finalizar edición</button>
+                        </form>
+                    {% else %}
+                        Cerrado
+                    {% endif %}
+                </td>
+                <td>
+                    {% if t.estado != 'finalizado' %}
+                        <a href="{{ url_for('torneos.edit_tournament', id_torneo=t.id_torneo) }}">Editar</a>
+                    {% endif %}
+                    <a href="{{ url_for('fixture', torneo=t.id_torneo) }}">Fixture</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -99,6 +99,29 @@ Se tuvieron en cuenta las restricciones del modelo de datos, particularmente la 
 
 Se incorporaron validaciones para los campos de nombre, superficie y condición de cancha techada. Además, se contempló el manejo de errores por duplicación de claves para evitar que estas situaciones interrumpan la aplicación.
 
+
+**Gestión de ediciones y partidos**  
+Se implementó la gestión de ediciones, la consulta del fixture y las operaciones administrativas para programar, modificar, reprogramar, cambiar el estado y eliminar partidos. Se agregaron validaciones de estados y reglas del torneo, junto con pruebas del dominio.  
+Archivos relacionados: `torneos.py`, `partidos.py`, `domain.py`, `test_persona2.py`.
+
+**Pantallas para fixture y ediciones**  
+Se agregó la pantalla del fixture con selector de edición, listado de partidos y acciones administrativas, además de las pantallas de edición y gestión de torneos.  
+Archivos relacionados: `fixture.html`, `edit_match.html`, `tournaments.html`.
+
+**Permisos para operaciones administrativas**  
+Se corrigieron los permisos de escritura del administrador para equipos, planteles, complejos y canchas. También se agregó el permiso necesario sobre turnos para las consultas con bloqueo usadas al gestionar partidos.  
+Archivos relacionados: `04_permisos.sql`, `03_permisos_cancha.sql`, `04_permisos_admin_operaciones.sql`.
+
+**Corrección del error al abrir el fixture**  
+Se agregó la plantilla faltante que provocaba un error interno al entrar a la pestaña del fixture y se actualizó la descripción de las funcionalidades en el `README.md`.
+
+**Aplicación y verificación de permisos en la base activa**  
+Se aplicaron los permisos faltantes directamente a la base de datos que corre en Docker. Se comprobó que el usuario administrador pueda ejecutar las consultas con bloqueo sobre las tablas involucradas.
+
+**Pruebas realizadas**  
+Pasaron las 17 pruebas del proyecto. También se verificó que el fixture responda correctamente para las ediciones disponibles y que las consultas con bloqueo funcionen con los permisos del administrador.
+
+
 ## Bibliografía y referencias para continuar
 
 - UCU. Obligatorio BD — Segundo Semestre 2026. Consigna proporcionada por el estudiante, páginas 1–4.

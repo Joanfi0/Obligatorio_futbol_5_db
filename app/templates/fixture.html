@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block content %}
+<p><a href="{{ url_for('index') }}">Volver a ediciones</a></p>
+
+<form method="get" class="panel">
+    <label>
+        Edición
+        <select name="torneo" onchange="this.form.submit()">
+            {% for tournament in tournaments %}
+                <option value="{{ tournament.id_torneo }}"
+                    {% if current_torneo and tournament.id_torneo == current_torneo.id_torneo %}selected{% endif %}>
+                    {{ tournament.anio }} - semestre {{ tournament.semestre }}: {{ tournament.nombre }}
+                </option>
+            {% endfor %}
+        </select>
+    </label>
+    <noscript><button type="submit">Ver edición</button></noscript>
+</form>
+
+{% if current_torneo %}
+    <p class="eyebrow">
+        {{ current_torneo.estado }} - {{ current_torneo.fecha_inicio }} a {{ current_torneo.fecha_fin }}
+    </p>
+
+    {% if session.rol == 'administrador' and current_torneo.estado != 'finalizado' %}
+        <details class="panel">
+            <summary>Programar partido</summary>
+            {% if teams|length < 2 or not courts or not shifts %}
+                <p class="notice">
+                    Para programar partidos se necesitan al menos dos equipos, una cancha y turnos disponibles.
+                </p>
+            {% else %}
+                <form method="post" action="{{ url_for('partidos.create_match') }}">
+                    <input type="hidden" name="csrf" value="{{ session.csrf }}">
+                    <input type="hidden" name="id_torneo" value="{{ current_torneo.id_torneo }}">
+                    <div class="grid">
+                        <label>
+                            N.º de fecha
+                            <input type="number" name="numero_fecha" min="1" max="50" required>
+                        </label>
+                        <label>
+                            Equipo local
+                            <select name="id_equipo_local" required>
+                                {% for team in teams %}
+                                    <option value="{{ team.id_equipo }}">{{ team.nombre }} ({{ team.jugadores }} jug.)</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            Equipo visitante
+                            <select name="id_equipo_visitante" required>
+                                {% for team in teams %}
+                                    <option value="{{ team.id_equipo }}">{{ team.nombre }} ({{ team.jugadores }} jug.)</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            Día
+                            <input type="date" name="dia"
+                                   min="{{ current_torneo.fecha_inicio }}"
+                                   max="{{ current_torneo.fecha_fin }}" required>
+                        </label>
+                        <label>
+                            Turno
+                            <select name="id_turno" required>
+                                {% for shift in shifts %}
+                                    <option value="{{ shift.id_turno }}">{{ shift.hora_inicio }} a {{ shift.hora_fin }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            Cancha y complejo
+                            <select name="cancha_complejo" required>
+                                {% for court in courts %}
+                                    <option value="{{ court.id_complejo }}|{{ court.nombre_cancha }}">
+                                        {{ court.complejo_nombre }} - {{ court.nombre_cancha }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                    <button type="submit">Programar partido</button>
+                </form>
+            {% endif %}
+        </details>
+    {% endif %}
+
+    {% if rows %}
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Partido</th>
+                        <th>Día y horario</th>
+                        <th>Cancha</th>
+                        <th>Estado / resultado</th>
+                        {% if session.rol == 'administrador' %}<th>Acciones</th>{% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for match in rows %}
+                        <tr>
+                            <td>{{ match.numero_fecha }}</td>
+                            <td>{{ match.local }} vs. {{ match.visitante }}</td>
+                            <td>{{ match.dia }} - {{ match.hora_inicio }} a {{ match.hora_fin }}</td>
+                            <td>{{ match.complejo }} - {{ match.nombre_cancha }}</td>
+                            <td>
+                                {{ match.estado }}
+                                {% if match.estado == 'jugado' %}
+                                    ({{ match.goles_local or 0 }} - {{ match.goles_visitante or 0 }})
+                                {% endif %}
+                            </td>
+                            {% if session.rol == 'administrador' %}
+                                <td>
+                                    {% if current_torneo.estado != 'finalizado' %}
+                                        {% if match.estado != 'jugado' or match.en_plazo_correccion %}
+                                            <a href="{{ url_for('partidos.edit_match', id_partido=match.id_partido) }}">Editar</a>
+                                        {% endif %}
+                                        <form method="post" action="{{ url_for('partidos.change_match_state', id_partido=match.id_partido) }}">
+                                            <input type="hidden" name="csrf" value="{{ session.csrf }}">
+                                            <input type="hidden" name="id_torneo" value="{{ current_torneo.id_torneo }}">
+                                            <label>
+                                                Cambiar estado
+                                                <select name="estado" required>
+                                                    {% for state in states %}
+                                                        <option value="{{ state }}" {% if state == match.estado %}selected{% endif %}>{{ state }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </label>
+                                            <button type="submit">Guardar</button>
+                                        </form>
+                                        {% if match.estado != 'jugado' %}
+                                            <form method="post" action="{{ url_for('partidos.delete_match', id_partido=match.id_partido) }}">
+                                                <input type="hidden" name="csrf" value="{{ session.csrf }}">
+                                                <input type="hidden" name="id_torneo" value="{{ current_torneo.id_torneo }}">
+                                                <button class="danger" type="submit">Eliminar</button>
+                                            </form>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="notice">Esta edición todavía no tiene partidos programados.</p>
+    {% endif %}
+{% else %}
+    <p class="notice">No hay ediciones disponibles.</p>
+{% endif %}
+{% endblock %}

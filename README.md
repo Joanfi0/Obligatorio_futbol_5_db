@@ -28,7 +28,7 @@
 
 - **Equipos por edición en la lista de jugadores:** consulta `memberships` dentro de `players()` en `app/web.py`. La columna se muestra en `app/templates/players.html` y obtiene las inscripciones de `equipo_jugador_torneo`.
 
-- **Consulta del fixture:** `app/web.py`, función `fixture()`. Muestra partidos, equipos, fecha, horario, cancha y estado mediante `app/templates/table.html`. La programación de partidos desde la web está pendiente.
+- **Consulta y gestión del fixture:** `app/partidos.py`, función `fixture_view()`, y `app/templates/fixture.html`. Muestra los partidos y resultados por edición; permite al administrador programar, modificar, reprogramar y cambiar el estado de partidos.
 
 - **Cálculo de resultados y posiciones:** `sql/02_vistas.sql`. La vista `v_resultados` calcula los marcadores incluyendo autogoles; `v_actuaciones` obtiene la actuación de cada equipo por partido; y `v_posiciones` calcula estadísticas y puntos. El orden por puntos, diferencia de goles y goles a favor se aplica en el reporte de posiciones.
 
@@ -59,7 +59,6 @@
 - ABM de equipos y planteles, con validaciones de integrantes, facultad, capitán y etapa de inscripción.
 - ABM de complejos deportivos y canchas.
 - Gestión de las ediciones y sus estados.
-- Programación y modificación de partidos, con control de enfrentamientos y superposiciones.
 - Registro de planillas, goles y tarjetas desde la web.
 - Cierre de partidos y control del plazo de corrección de 48 horas.
 - ABM de sanciones disciplinarias y generación automática de suspensiones.
@@ -104,6 +103,8 @@ Los partidos de muestra son de 2025 para que ya hayan transcurrido sus turnos. L
 
 Los scripts `sql/01` a `sql/04` se ejecutan automáticamente solo al inicializar un volumen vacío. `docker compose down` detiene los servicios y conserva el volumen. `docker compose up -d` los vuelve a iniciar.
 Editar un SQL no modifica una base ya inicializada: usar migraciones explícitas. No borrar el volumen si contiene trabajo que se quiera conservar
+
+Si una base existente tiene permisos incompletos para las operaciones administrativas, aplicar `migrations/03_permisos_cancha.sql` y `migrations/04_permisos_admin_operaciones.sql` con una cuenta administradora de MySQL. La segunda migración habilita la gestión de equipos y planteles, complejos y canchas, además del permiso de actualización necesario para las lecturas con bloqueo de turnos al administrar partidos.
 
 ## Alternativa: Python y MySQL locales
 
@@ -161,5 +162,3 @@ Lo siguiente es implementar transacciones y procedimientos para planteles y prog
 ## Revisión del avance
 
 Ver docs/REVISION_AVANCE.md para el contraste con la consigna y los materiales.
-
-

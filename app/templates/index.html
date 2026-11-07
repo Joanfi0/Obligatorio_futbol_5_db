@@ -1,49 +1,39 @@
-
 {% extends 'base.html' %}
 {% block content %}
-
 <p>
     Consulta las ediciones, el fixture y las métricas del torneo.
 </p>
-
 {% if session.rol == 'administrador' %}
     <p>
+        <a class="button" href="{{ url_for('torneos.tournaments') }}">
+            Gestionar ediciones (Torneos)
+        </a>
         <a class="button" href="{{ url_for('jugadores.players') }}">
             Gestionar jugadores
         </a>
-    </p>
-    <p>
         <a class="button" href="{{ url_for('equipos.teams') }}">
-            Gestionar Equipos
+            Gestionar equipos
         </a>
-    </p>
-        <p>
         <a class="button" href="{{ url_for('complejos.complexes') }}">
             Gestionar complejos deportivos
         </a>
     </p>
-
 {% endif %}
-
 <div class="grid">
     {% for t in tournaments %}
         <section class="panel">
             <p class="eyebrow">
-                {{ t.anio }} · SEMESTRE {{ t.semestre }}
+                {{ t.anio }} - SEMESTRE {{ t.semestre }}
             </p>
-
             <h2>{{ t.nombre }}</h2>
-
             <p>
-                {{ t.estado }} · {{ t.fecha_inicio }} a {{ t.fecha_fin }}
+                {{ t.estado }} - {{ t.fecha_inicio }} a {{ t.fecha_fin }}
             </p>
-
             <p>
                 <a href="{{ url_for('fixture', torneo=t.id_torneo) }}">
                     Ver fixture
                 </a>
             </p>
-
             {% if session.rol == 'administrador' %}
                 <details>
                     <summary>Reportes de esta edición</summary>
@@ -61,11 +51,9 @@
         </section>
     {% endfor %}
 </div>
-
 <p class="notice">
     En este avance están habilitados la consulta de fixture, los reportes
     y los ABM de jugadores y equipos para administradores. La gestión de
     planteles, partidos, planillas y sanciones está pendiente.
 </p>
-
 {% endblock %}
