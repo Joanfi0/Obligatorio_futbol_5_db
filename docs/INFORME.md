@@ -150,7 +150,7 @@ Se aplicaron los permisos faltantes directamente a la base de datos que corre en
 Pasaron las 17 pruebas del proyecto. También se verificó que el fixture responda correctamente para las ediciones disponibles y que las consultas con bloqueo funcionen con los permisos del administrador.
 
 
-## Bibliografía y referencias para continuar
+## Bibliografía y referencias 
 
 - UCU. Obligatorio BD — Segundo Semestre 2026. Consigna proporcionada por el estudiante, páginas 1–4.
 - Python, documentación de biblioteca estándar: https://docs.python.org/3/
@@ -159,4 +159,3 @@ Pasaron las 17 pruebas del proyecto. También se verificó que el fixture respon
 - MySQL Connector/Python: https://dev.mysql.com/doc/connector-python/en/
 - Docker Compose: https://docs.docker.com/compose/
 
-Los enlaces oficiales se incluyen como referencias de implementación; no sustituyen el registro de pruebas ni una revisión de todas sus páginas. Completar con fuentes efectivamente consultadas por el equipo y explicar en la defensa el código utilizado y la asistencia recibida.
