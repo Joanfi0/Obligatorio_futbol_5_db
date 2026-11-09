@@ -72,19 +72,26 @@ def detalle(id_partido):
 
     partido = partido[0]
 
-    editable = partido["estado"] != "cancelado" and is_within_correction_window(partido["dia"], partido["hora_fin"])
+    editable = partido["estado"] not in ("cancelado", "postergado") and is_within_correction_window(partido["dia"], partido["hora_fin"])
     if request.method == "POST":
         try:
             def guardar(cur):
                 cur.callproc("validar_planilla", (id_partido,))
                 cur.execute("SELECT p.*, t.hora_fin FROM partido p JOIN turno t USING(id_turno) WHERE id_partido=%s", (id_partido,))
                 actual = cur.fetchone()
-                if actual["estado"] == "cancelado":
-                    raise ValueError("No se puede cargar una planilla de un partido cancelado.")
+                if actual["estado"] in ("cancelado", "postergado"):
+                    raise ValueError("No se puede cargar una planilla de un partido cancelado o postergado.")
                 validate_correction_window(actual["dia"], actual["hora_fin"])
                 accion = request.form.get("accion", "")
                 if accion == "agregar_participante":
                     ci = validate_ci(request.form.get("ci_jugador", ""))
+                    cur.execute(
+                        "SELECT 1 FROM sancion_jugador WHERE ci_jugador=%s AND id_torneo=%s "
+                        "AND %s BETWEEN numero_fecha_inicio AND numero_fecha_inicio+cantidad_fechas-1",
+                        (ci, actual["id_torneo"], actual["numero_fecha"]),
+                    )
+                    if cur.fetchall():
+                        raise ValueError("El jugador está suspendido para esta fecha.")
                     cur.execute("INSERT INTO planilla_partido (id_partido,ci_jugador,id_equipo) SELECT %s,ci_jugador,id_equipo FROM equipo_jugador_torneo WHERE id_torneo=%s AND ci_jugador=%s AND id_equipo IN (%s,%s)", (id_partido,actual["id_torneo"],ci,actual["id_equipo_local"],actual["id_equipo_visitante"]))
                     if cur.rowcount != 1:
                         raise ValueError("El jugador no pertenece a los equipos del partido.")

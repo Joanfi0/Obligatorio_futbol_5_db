@@ -55,6 +55,15 @@ def _execute_match_write_saga(cur, match_data, editing_id=None):
             old_match = cur.fetchone()
             if not old_match:
                 raise ValueError("El partido que intenta editar no existe.")
+            cur.execute("SELECT 1 FROM planilla_partido WHERE id_partido=%s LIMIT 1", (editing_id,))
+            tiene_planilla = cur.fetchone() is not None
+            if old_match["estado"] == "jugado" and match_data["estado"] != "jugado":
+                raise ValueError("Un partido jugado no puede volver a otro estado; corregí sus eventos.")
+            if tiene_planilla or old_match["estado"] == "jugado":
+                campos = ("id_torneo", "numero_fecha", "id_equipo_local", "id_equipo_visitante",
+                          "dia", "id_turno", "nombre_cancha", "id_complejo")
+                if any(str(match_data[k]) != str(old_match[k]) for k in campos) or match_data["estado"] in ("cancelado", "postergado"):
+                    raise ValueError("Un partido con historial conserva equipos, fecha, cancha y turno.")
             context["editing_match"] = old_match
         else:
             context["editing_match"] = None
@@ -363,7 +372,7 @@ def change_match_state(id_partido):
             raise ValueError("No se pueden cambiar estados en una edición finalizada.")
 
         if m["estado"] == "jugado" and nuevo_estado != "jugado":
-            validate_correction_window(m["dia"], m["hora_fin"])
+            raise ValueError("Un partido jugado no puede volver a otro estado; corregí sus eventos.")
 
         if nuevo_estado == "jugado":
             if not can_mark_match_played(m["dia"], m["hora_fin"]):

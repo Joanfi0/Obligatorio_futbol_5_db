@@ -1,3 +1,6 @@
+import os
+os.environ.setdefault("SECRET_KEY", "solo-pruebas-locales")
+
 import threading
 import unittest
 from datetime import datetime

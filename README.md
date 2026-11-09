@@ -162,3 +162,19 @@ Lo siguiente es implementar transacciones y procedimientos para planteles y prog
 ## Revisión del avance
 
 Ver docs/REVISION_AVANCE.md para el contraste con la consigna y los materiales.
+
+
+**Instalación desde cero con Docker:** copiar `.env.example` a `.env` y ejecutar `docker compose up --build -d`. Compose carga los cinco scripts SQL, del 01 al 05, al crear una base vacía. Abrir http://localhost:8000 y utilizar las cuentas de demostración indicadas arriba. No borrar un volumen que contenga datos que se quieran conservar.
+
+**Instalación local sin Docker (instrucciones corregidas):** crear una base de pruebas nueva ejecutando como administrador de MySQL los scripts `sql/01_esquema.sql`, `sql/02_vistas.sql`, `sql/03_datos.sql`, `sql/04_permisos.sql` y `sql/05_triggers.sql`, en ese orden. Luego, desde la carpeta del proyecto en PowerShell:
+
+```powershell
+python -m venv .venv
+Copy-Item .env.example .env
+.venv\Scripts\python -m pip install -r requirements.txt
+```
+
+En `.env`, agregar `DB_HOST=127.0.0.1` y `DB_PORT=3306` (3307 si MySQL corre con el Compose). Iniciar con `.venv\Scripts\python run_local.py`. La dependencia `tzdata` permite usar la zona horaria de Montevideo también en Windows.
+
+
+**Pruebas:** el archivo entregado es `tests/test_persona2.py` (8 pruebas); las referencias anteriores a `test_avance.py`, 9/17 pruebas y `docs/ACTUALIZAR_NOMBRES.md` corresponden al avance y no aplican a este ZIP. Ejecutar con `.venv\Scripts\python -m unittest discover -s tests -v`. Los módulos ahora están separados en `app/jugadores.py`, `equipos.py`, `planteles.py`, `complejos.py`, `canchas.py`, `torneos.py`, `partidos.py`, `planillas.py` y `sanciones.py`.
